@@ -1,5 +1,7 @@
 bin/
 lib/
+!JMVC/H264Extension/build/linux/lib/
+!JMVC/H264Extension/src/lib/
 *.d.o
 *.d.P
 *.r.o
