@@ -73,6 +73,7 @@ OBJS          	= \
 			$(OBJ_DIR)/YuvPicBuffer.o \
 			$(OBJ_DIR)/CFMO.o \
 			$(OBJ_DIR)/YUVFileParams.o \
+			$(OBJ_DIR)/Debugger.o \
 
 LIBS				= -lpthread
 
