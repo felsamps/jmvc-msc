@@ -5,6 +5,8 @@
       <in>CFMO.cpp</in>
       <in>CabacContextModel.cpp</in>
       <in>CabacContextModel2DBuffer.cpp</in>
+      <in>Debugger.cpp</in>
+      <in>Debugger.h</in>
       <in>Frame.cpp</in>
       <in>FrameMng.cpp</in>
       <in>FrameUnit.cpp</in>

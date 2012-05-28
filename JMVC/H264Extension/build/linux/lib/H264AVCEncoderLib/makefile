@@ -58,6 +58,7 @@ OBJS          	= \
 			$(OBJ_DIR)/SliceEncoder.o \
 			$(OBJ_DIR)/UvlcWriter.o \
 			$(OBJ_DIR)/Multiview.o \
+			$(OBJ_DIR)/ReferenceFrameComm.o \
 
 
 LIBS				= -lpthread

@@ -7,6 +7,8 @@
 #include "ControlMngH264AVCEncoder.h"
 #include "H264AVCCommonLib/ParameterSetMng.h"
 #include "H264AVCCommonLib/FrameMng.h"
+#include "../H264AVCCommonLib/Debugger.h"
+#include "ReferenceFrameComm.h"
 
 #include <math.h>
 
@@ -91,6 +93,9 @@ H264AVCEncoder::init(
 
   m_cAccessUnitList.clear();
 
+  ReferenceFrameComm::init(pcCodingParameter->getCurentViewId());
+  Debugger::initFile("debug.txt", pcCodingParameter->getCurentViewId());
+
   return Err::m_nOK;
 }
 
@@ -118,6 +123,8 @@ H264AVCEncoder::uninit()
   }
 
   m_cAccessUnitList.clear();
+  Debugger::closeFile();
+  ReferenceFrameComm::reportAndClose();
 
   return Err::m_nOK;
 }

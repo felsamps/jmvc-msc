@@ -7,8 +7,11 @@
 #include "H264AVCCommonLib/PocCalculator.h"
 #include "H264AVCCommonLib/FrameMng.h"
 #include "H264AVCCommonLib/Transform.h"
+#include "../H264AVCCommonLib/Debugger.h"
+
 
 #include "H264AVCCommonLib/CFMO.h"
+#include "ReferenceFrameComm.h"
 
 H264AVC_NAMESPACE_BEGIN
 
@@ -151,6 +154,20 @@ SliceEncoder::encodeSlice( SliceHeader&  rcSliceHeader,
 		m_pcMbEncoder->setPdsInitialDelayMinus2L0( ppuiPdsInitialDelayMinus2L0[rcSliceHeader.getViewId()] );
 		m_pcMbEncoder->setPdsInitialDelayMinus2L1( ppuiPdsInitialDelayMinus2L1[rcSliceHeader.getViewId()] );
 	}
+	/*FELIPE looking for the reference frames for this current slice */
+	
+	unsigned int activeList0 = rcList0.getActive();
+	unsigned int activeList1 = rcList1.getActive();
+
+	for(Int l0=0; l0 < (Int)activeList0; l0++) {
+		ReferenceFrameComm::insertComm("R", rcList0.getEntry(l0)->getViewId(), rcList0.getEntry(l0)->getPOC());
+	}
+	
+	for(Int l1=0; l1 < (Int)activeList1; l1++) {
+		ReferenceFrameComm::insertComm("R", rcList1.getEntry(l1)->getViewId(), rcList1.getEntry(l1)->getPOC());
+	}
+
+	ReferenceFrameComm::insertComm("W", pcFrame->getViewId(), pcFrame->getPOC());
 //~JVT-W080
   //===== loop over macroblocks =====
   for( UInt uiMbAddress = rcSliceHeader.getFirstMbInSlice(); uiMbAddress <= rcSliceHeader.getLastMbInSlice(); uiMbAddress = rcSliceHeader.getFMO()->getNextMBNr( uiMbAddress ) )

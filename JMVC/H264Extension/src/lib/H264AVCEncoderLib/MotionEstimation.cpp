@@ -286,7 +286,8 @@ MotionEstimation::estimateBlockWithStart( const MbDataAccess&  rcMbDataAccess,
     }
     else
     {
-      switch( m_cParams.getSearchMode() )
+      Int mode = (m_cParams.getSearchMode() > 4) ? 4 : m_cParams.getSearchMode();
+      switch( mode )
       {
       case 0:
         {
@@ -797,7 +798,7 @@ Void MotionEstimation::xPelLogSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt
 
 
 #define TZ_SEARCH_CONFIGURATION                                                                                 \
-  const Int  iRaster                  = 3;  /* TZ soll von aussen übergeben werden */                           \
+  const Int  iRaster                  = 3;  /* TZ soll von aussen ï¿½bergeben werden */                           \
   const Bool bTestOtherPredictedMV    = 1;                                                                      \
   const Bool bTestZeroVector          = 1;                                                                      \
   const Bool bTestZeroVectorStar      = 0;                                                                      \
