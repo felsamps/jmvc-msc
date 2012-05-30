@@ -6,3 +6,6 @@ lib/
 *.d.P
 *.r.o
 *.r.P
+mem-comm-model/dist/
+mem-comm-model/build/
+
