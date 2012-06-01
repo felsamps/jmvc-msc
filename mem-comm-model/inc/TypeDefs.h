@@ -8,6 +8,9 @@
 #ifndef _TYPEDEFS_H
 #define	_TYPEDEFS_H
 
+#define YUV_FOLDER "../../../bin/"
+
+typedef char Pel;
 typedef unsigned int UInt;
 typedef int Int;
 

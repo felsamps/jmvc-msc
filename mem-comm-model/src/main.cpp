@@ -1,14 +1,8 @@
-/* 
- * File:   main.cpp
- * Author: felsamps
- *
- * Created on May 30, 2012, 9:51 AM
- */
-
 #include <stdlib.h>
 #include <iostream>
 
 #include "../inc/CommFile.h"
+#include "../inc/RecVideo.h"
 
 using namespace std;
 
@@ -18,6 +12,9 @@ int main(int argc, char** argv) {
 	while(!rCommFile.isEmpty()) {
 		CommEntry *entry = rCommFile.getNextComm();
 	}
+
+	RecVideo rRecVideo("recon", 3, 5, 640, 480);
+
 	return (EXIT_SUCCESS);
 }
 

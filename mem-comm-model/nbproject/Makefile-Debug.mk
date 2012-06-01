@@ -31,6 +31,7 @@ OBJECTDIR=build/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
+	${OBJECTDIR}/src/RecVideo.o \
 	${OBJECTDIR}/src/main.o \
 	${OBJECTDIR}/src/CommFile.o
 
@@ -57,6 +58,11 @@ LDLIBSOPTIONS=
 dist/Debug/GNU-Linux-x86/mem-comm-model: ${OBJECTFILES}
 	${MKDIR} -p dist/Debug/GNU-Linux-x86
 	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/mem-comm-model ${OBJECTFILES} ${LDLIBSOPTIONS} 
+
+${OBJECTDIR}/src/RecVideo.o: nbproject/Makefile-${CND_CONF}.mk src/RecVideo.cpp 
+	${MKDIR} -p ${OBJECTDIR}/src
+	${RM} $@.d
+	$(COMPILE.cc) -g -Iinc -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/RecVideo.o src/RecVideo.cpp
 
 ${OBJECTDIR}/src/main.o: nbproject/Makefile-${CND_CONF}.mk src/main.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src

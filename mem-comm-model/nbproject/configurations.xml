@@ -3,10 +3,12 @@
   <logicalFolder name="root" displayName="root" projectFiles="true">
     <logicalFolder name="f2" displayName="inc" projectFiles="true">
       <itemPath>inc/CommFile.h</itemPath>
+      <itemPath>inc/RecVideo.h</itemPath>
       <itemPath>inc/TypeDefs.h</itemPath>
     </logicalFolder>
     <logicalFolder name="f1" displayName="src" projectFiles="true">
       <itemPath>src/CommFile.cpp</itemPath>
+      <itemPath>src/RecVideo.cpp</itemPath>
       <itemPath>src/main.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
