@@ -8,4 +8,4 @@ lib/
 *.r.P
 mem-comm-model/dist/
 mem-comm-model/build/
-
+mem-comm-model/outputs/

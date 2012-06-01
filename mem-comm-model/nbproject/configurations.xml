@@ -16,6 +16,8 @@
                    projectFiles="false">
       <itemPath>Makefile</itemPath>
     </logicalFolder>
+    <itemPath>src/Statistical.cpp</itemPath>
+    <itemPath>inc/Statistical.h</itemPath>
   </logicalFolder>
   <sourceRootList>
     <Elem>src</Elem>

@@ -20,8 +20,18 @@ private:
 public:
 
     RecVideo(string name, UInt numViews, UInt numFrames, UInt w, UInt h);
-
+    RecVideo(const RecVideo&);
     Pel operator()(Int v, Int f, Int x, Int y);
+    Pel get(Int v, Int f, Int x, Int y);
+    
+    void setH(UInt h);
+    UInt getH() const;
+    void setW(UInt w);
+    UInt getW() const;
+    void setNumFrames(UInt numFrames);
+    UInt getNumFrames() const;
+    void setNumViews(UInt numViews);
+    UInt getNumViews() const;
 
 };
 

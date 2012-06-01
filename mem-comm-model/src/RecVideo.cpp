@@ -1,5 +1,9 @@
 #include "../inc/RecVideo.h"
 
+RecVideo::RecVideo(const RecVideo&) {
+
+}
+
 RecVideo::RecVideo(string name, UInt numViews, UInt numFrames, UInt w, UInt h) {
 	this->w = w;
 	this->h = h;
@@ -13,7 +17,6 @@ RecVideo::RecVideo(string name, UInt numViews, UInt numFrames, UInt w, UInt h) {
 		string fName = YUV_FOLDER + oss.str();
 		
 		ifstream *ifs = new ifstream(fName.c_str(), fstream::binary);
-		cout << ifs->
 		reconYuv.push_back(ifs);
 	}
 
@@ -35,4 +38,32 @@ void RecVideo::xReadYuv() {
 
 Pel RecVideo::operator ()(Int v, Int f, Int x, Int y) {
 	return pYRecFrames[v][f][x+y*w];
+}
+Pel RecVideo::get(Int v, Int f, Int x, Int y) {
+	return pYRecFrames[v][f][x+y*w];
+}
+
+void RecVideo::setH(UInt h) {
+	this->h = h;
+}
+UInt RecVideo::getH() const {
+	return h;
+}
+void RecVideo::setW(UInt w) {
+	this->w = w;
+}
+UInt RecVideo::getW() const {
+	return w;
+}
+void RecVideo::setNumFrames(UInt numFrames) {
+	this->numFrames = numFrames;
+}
+UInt RecVideo::getNumFrames() const {
+	return numFrames;
+}
+void RecVideo::setNumViews(UInt numViews) {
+	this->numViews = numViews;
+}
+UInt RecVideo::getNumViews() const {
+	return numViews;
 }

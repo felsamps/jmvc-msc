@@ -3,6 +3,7 @@
 
 #include "../inc/CommFile.h"
 #include "../inc/RecVideo.h"
+#include "../inc/Statistical.h"
 
 using namespace std;
 
@@ -13,7 +14,11 @@ int main(int argc, char** argv) {
 		CommEntry *entry = rCommFile.getNextComm();
 	}
 
-	RecVideo rRecVideo("recon", 3, 5, 640, 480);
+	RecVideo* rRecVideo = new RecVideo("recon", 3, 5, 640, 480);
+
+	Statistical stats(rRecVideo);
+	stats.approach01();
+	
 
 	return (EXIT_SUCCESS);
 }
