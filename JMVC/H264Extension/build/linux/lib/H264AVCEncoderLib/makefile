@@ -59,7 +59,7 @@ OBJS          	= \
 			$(OBJ_DIR)/UvlcWriter.o \
 			$(OBJ_DIR)/Multiview.o \
 			$(OBJ_DIR)/ReferenceFrameComm.o \
-
+			$(OBJ_DIR)/MemAccessHandler.o \
 
 LIBS				= -lpthread
 
