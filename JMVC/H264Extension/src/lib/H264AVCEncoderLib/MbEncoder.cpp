@@ -10,6 +10,8 @@
 #include "CodingParameter.h"
 
 #include "RateDistortionIf.h"
+#include "MemAccessHandler.h"
+#include "TestDefinitions.h"
 
 
 H264AVC_NAMESPACE_BEGIN
@@ -401,14 +403,19 @@ MbEncoder::encodeMacroblock( MbDataAccess&  rcMbDataAccess,
 
 
   }
+  
+  
+  
   if( rcMbDataAccess.getSH().isInterP() || rcMbDataAccess.getSH().isInterB() )
   {
     RNOK( xEstimateMb16x16    ( m_pcIntMbTempData,  m_pcIntMbBestData,  rcList0,  rcList1,  false,  uiNumMaxIter, uiIterSearchRange,  false,  NULL, false ) );
+    /*
     RNOK( xEstimateMb16x8     ( m_pcIntMbTempData,  m_pcIntMbBestData,  rcList0,  rcList1,  false,  uiNumMaxIter, uiIterSearchRange,  false,  NULL, false ) );
     RNOK( xEstimateMb8x16     ( m_pcIntMbTempData,  m_pcIntMbBestData,  rcList0,  rcList1,  false,  uiNumMaxIter, uiIterSearchRange,  false,  NULL, false ) );
 
     RNOK( xEstimateMb8x8      ( m_pcIntMbTempData,  m_pcIntMbBestData,  rcList0,  rcList1,  false,  uiNumMaxIter, uiIterSearchRange,  false,  NULL, false ) );
     RNOK( xEstimateMb8x8Frext ( m_pcIntMbTempData,  m_pcIntMbBestData,  rcList0,  rcList1,  false,  uiNumMaxIter, uiIterSearchRange,  false,  NULL, false ) );
+     */ 
   }
   RNOK(   xEstimateMbIntra16  ( m_pcIntMbTempData,  m_pcIntMbBestData,  rcMbDataAccess.getSH().isInterB() ) );
   RNOK(   xEstimateMbIntra8   ( m_pcIntMbTempData,  m_pcIntMbBestData,  rcMbDataAccess.getSH().isInterB() ) );
@@ -473,14 +480,25 @@ MbEncoder::encodeMacroblock( MbDataAccess&  rcMbDataAccess,
 
 
   }
+  //Felipe
+#ifdef SW_USAGE_EN
+  MemAccessHandler::setMb(rcMbDataAccess.getMbX(), rcMbDataAccess.getMbY());
+  MemAccessHandler::setCurrView(rcMbDataAccess.getSH().getViewId());
+  
+  MemAccessHandler::setNumRefFrames(rcList0.getActive() + rcList1.getActive());
+#endif
+  
   if( rcMbDataAccess.getSH().isInterP() || rcMbDataAccess.getSH().isInterB() )
   {
     RNOK( xEstimateMb16x16    ( m_pcIntMbTempData,  m_pcIntMbBestData,  rcList0,  rcList1,  false,  uiNumMaxIter, uiIterSearchRange,  false,  NULL, false ) );
+    /*
     RNOK( xEstimateMb16x8     ( m_pcIntMbTempData,  m_pcIntMbBestData,  rcList0,  rcList1,  false,  uiNumMaxIter, uiIterSearchRange,  false,  NULL, false ) );
     RNOK( xEstimateMb8x16     ( m_pcIntMbTempData,  m_pcIntMbBestData,  rcList0,  rcList1,  false,  uiNumMaxIter, uiIterSearchRange,  false,  NULL, false ) );
 
     RNOK( xEstimateMb8x8      ( m_pcIntMbTempData,  m_pcIntMbBestData,  rcList0,  rcList1,  false,  uiNumMaxIter, uiIterSearchRange,  false,  NULL, false ) );
     RNOK( xEstimateMb8x8Frext ( m_pcIntMbTempData,  m_pcIntMbBestData,  rcList0,  rcList1,  false,  uiNumMaxIter, uiIterSearchRange,  false,  NULL, false ) );
+    */
+    
   }
   RNOK(   xEstimateMbIntra16  ( m_pcIntMbTempData,  m_pcIntMbBestData,  rcMbDataAccess.getSH().isInterB() ) );
   RNOK(   xEstimateMbIntra8   ( m_pcIntMbTempData,  m_pcIntMbBestData,  rcMbDataAccess.getSH().isInterB() ) );

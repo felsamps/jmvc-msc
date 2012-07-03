@@ -7,6 +7,8 @@
 #include "MotionEstimation.h"
 
 #include "H264AVCCommonLib/Transform.h"
+#include "MemAccessHandler.h"
+#include "TestDefinitions.h"
 
 H264AVC_NAMESPACE_BEGIN
 
@@ -277,6 +279,14 @@ MotionEstimation::estimateBlockWithStart( const MbDataAccess&  rcMbDataAccess,
   m_cXDSS.pVOrg = pcWeightedYuvBuffer->getCrBlk ();
   xSetPredictor( rcMvPred );
   xSetCostScale( 2 );
+  
+  //FELIPE
+  #ifdef SW_USAGE_EN
+  MemAccessHandler::setRefView(rcRefFrame.getViewId());
+  MemAccessHandler::setBiPred(pcBSP ? true : false);
+  
+  MemAccessHandler::init();
+  #endif
 
   if( ! bQPelRefinementOnly )
   {
@@ -342,6 +352,12 @@ MotionEstimation::estimateBlockWithStart( const MbDataAccess&  rcMbDataAccess,
       return Err::m_nOK;
     }
   }
+  
+  //FELIPE
+#ifdef SW_USAGE_EN
+  MemAccessHandler::insertUsage();
+#endif
+  
   // heiko.schwarz@hhi.fhg.de (fix for uninitialized memory with YUV_SAD and bi-directional search) >>>>
   if( bOriginalSearchModeIsYUVSAD )
   {
@@ -837,6 +853,12 @@ Void MotionEstimation::xTZSearchHelp( IntTZSearchStrukt& rcStrukt, const Int iSe
   
   UInt uiSad       = m_cXDSS.Func( &m_cXDSS );
   uiSad           += MotionEstimationCost::xGetCost( iSearchX, iSearchY );
+  
+  //FELIPE
+#ifdef SW_USAGE_EN
+  MemAccessHandler::insertBlock(iSearchX, iSearchY, 16);
+#endif
+  
   if( rcStrukt.uiBestSad > uiSad )
   {
     rcStrukt.uiBestSad      = uiSad;
@@ -1201,6 +1223,12 @@ Void MotionEstimation::xTZSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt& ru
 
   // limit search range
   if( ! uiSearchRange ) { uiSearchRange = m_cParams.getSearchRange(); }
+  
+  //FELIPE
+#ifdef SW_USAGE_EN
+  MemAccessHandler::setSearchRange(uiSearchRange);
+#endif
+  
   rcMv.limitComponents(MotionCompensation::m_cMin, MotionCompensation::m_cMax );
   SearchRect cSearchRect;
   rcMv >>= 2;

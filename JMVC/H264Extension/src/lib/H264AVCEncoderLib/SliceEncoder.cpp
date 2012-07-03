@@ -12,6 +12,8 @@
 
 #include "H264AVCCommonLib/CFMO.h"
 #include "ReferenceFrameComm.h"
+#include "MemAccessHandler.h"
+#include "TestDefinitions.h"
 
 H264AVC_NAMESPACE_BEGIN
 
@@ -148,7 +150,7 @@ SliceEncoder::encodeSlice( SliceHeader&  rcSliceHeader,
 	{
 		m_pcMbEncoder->setPdsEnable( getPdsEnable() );
 	  m_pcMbEncoder->setFrameWidthInMbs( rcSliceHeader.getSPS().getFrameWidthInMbs() );
-		m_pcMbEncoder->setPdsBlockSize( getPdsBlockSize() );
+               	m_pcMbEncoder->setPdsBlockSize( getPdsBlockSize() );
 		UInt **ppuiPdsInitialDelayMinus2L0 = getPdsInitialDelayMinus2L0();
 		UInt **ppuiPdsInitialDelayMinus2L1 = getPdsInitialDelayMinus2L1();
 		m_pcMbEncoder->setPdsInitialDelayMinus2L0( ppuiPdsInitialDelayMinus2L0[rcSliceHeader.getViewId()] );
@@ -156,6 +158,7 @@ SliceEncoder::encodeSlice( SliceHeader&  rcSliceHeader,
 	}
 	/*FELIPE looking for the reference frames for this current slice */
 	
+        #ifdef REF_COMM_EN
 	unsigned int activeList0 = rcList0.getActive();
 	unsigned int activeList1 = rcList1.getActive();
 
@@ -168,6 +171,16 @@ SliceEncoder::encodeSlice( SliceHeader&  rcSliceHeader,
 	}
 
 	ReferenceFrameComm::insertComm("W", pcFrame->getViewId(), pcFrame->getPOC());
+        #endif
+        
+        #ifdef SW_USAGE_EN
+        MemAccessHandler::setWidth(pcFrame->getFullPelYuvBuffer()->getLWidth());
+        MemAccessHandler::setHeight(pcFrame->getFullPelYuvBuffer()->getLHeight());
+        MemAccessHandler::setCurrPoc(pcFrame->getPOC());
+        MemAccessHandler::initCurrMB();
+        #endif
+        
+        
 //~JVT-W080
   //===== loop over macroblocks =====
   for( UInt uiMbAddress = rcSliceHeader.getFirstMbInSlice(); uiMbAddress <= rcSliceHeader.getLastMbInSlice(); uiMbAddress = rcSliceHeader.getFMO()->getNextMBNr( uiMbAddress ) )
@@ -190,6 +203,8 @@ SliceEncoder::encodeSlice( SliceHeader&  rcSliceHeader,
 		}
 //~JVT-W080
 
+    
+           
     Double cost;
     RNOK( m_pcMbEncoder ->encodeMacroblock( *pcMbDataAccess,
                                              pcFrame,
@@ -201,10 +216,17 @@ SliceEncoder::encodeSlice( SliceHeader&  rcSliceHeader,
                                              dlambda,
                                              cost,
 											 true) );
+   
 
     RNOK( m_pcMbCoder   ->encode          ( *pcMbDataAccess, NULL, SST_RATIO_1,
                                              ( uiMbAddress == rcSliceHeader.getLastMbInSlice() ) , true ) );
   }
+   //FELIPE     
+#ifdef SW_USAGE_EN
+    MemAccessHandler::report();
+#endif
+    
+  
 
   return Err::m_nOK;
 }

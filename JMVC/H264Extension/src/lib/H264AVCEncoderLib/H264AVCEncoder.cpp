@@ -9,6 +9,8 @@
 #include "H264AVCCommonLib/FrameMng.h"
 #include "../H264AVCCommonLib/Debugger.h"
 #include "ReferenceFrameComm.h"
+#include "MemAccessHandler.h"
+#include "TestDefinitions.h"
 
 #include <math.h>
 
@@ -93,8 +95,18 @@ H264AVCEncoder::init(
 
   m_cAccessUnitList.clear();
 
+  //FELIPE
+#ifdef REF_COMM_EN
   ReferenceFrameComm::init(pcCodingParameter->getCurentViewId());
+#endif
+
+#ifdef DEBUGGER_EN
   Debugger::initFile("debug.txt", pcCodingParameter->getCurentViewId());
+#endif
+  
+#ifdef SW_USAGE_EN
+  MemAccessHandler::openFile(pcCodingParameter->getCurentViewId());
+#endif
 
   return Err::m_nOK;
 }
@@ -123,8 +135,17 @@ H264AVCEncoder::uninit()
   }
 
   m_cAccessUnitList.clear();
+  
+  //FELIPE
+#ifdef DEBUGGER_EN
   Debugger::closeFile();
+#endif
+#ifdef REF_COMM_EN
   ReferenceFrameComm::reportAndClose();
+#endif
+#ifdef SW_USAGE_EN
+  MemAccessHandler::closeFile();
+#endif
 
   return Err::m_nOK;
 }
