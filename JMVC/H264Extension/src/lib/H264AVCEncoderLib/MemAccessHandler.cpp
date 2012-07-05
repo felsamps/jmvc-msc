@@ -7,7 +7,7 @@
 
 FILE* MemAccessHandler::fp_me;
 FILE* MemAccessHandler::fp_de;
-std::set<int> MemAccessHandler::acc;
+std::set<std::pair<int,int> > MemAccessHandler::acc;
 std::set<int> MemAccessHandler::block_acc;
 int MemAccessHandler::counter;
 int MemAccessHandler::currMbX;
@@ -41,6 +41,7 @@ void MemAccessHandler::openFile(unsigned int view) {
         fp_me = fopen("sw_usage_me.mat", "a");
         fp_de = fopen("sw_usage_de.mat", "a");
     }
+    
 }
 
 void MemAccessHandler::closeFile() {
@@ -66,9 +67,8 @@ void MemAccessHandler::setMb(int x, int y) {
     currMbY = y*16;
 }
 
-void MemAccessHandler::insert(int x, int y) {
-    int calc = y * width + x;
-    acc.insert(calc);
+void MemAccessHandler::insert(std::pair<int, int> sp) {
+    acc.insert(sp);
 }
 
 void MemAccessHandler::insertBlock(int x, int y, int size) {
@@ -76,11 +76,13 @@ void MemAccessHandler::insertBlock(int x, int y, int size) {
 
     int posx = currMbX + x;
     int posy = currMbY + y;
+    
     counter ++;
     
     for (int i = posx; i < posx+size; i++) {
         for (int j = posy; j < posy+size; j++) {
-            insert(i, j);
+            std::pair<int, int> sp(i, j);
+            insert(sp);
         }
     }
     /*
@@ -114,7 +116,7 @@ void MemAccessHandler::insertUsage() {
     if( !bipred ) {
            
         int idx = ((currMbY/16) * width/16) + (currMbX/16);
-      
+        
         if(currView == refView)  {/* motion estimation */
             
             /* Incrementing the number of reference frames (ME) */

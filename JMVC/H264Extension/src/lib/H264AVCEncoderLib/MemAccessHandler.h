@@ -6,12 +6,13 @@
 #include<string>
 #include<cstdlib>
 #include<map>
+#include<utility>
 
 class MemAccessHandler {
 private:
     static FILE* fp_me;
     static FILE* fp_de;
-    static std::set<int> acc;
+    static std::set<std::pair<int,int> > acc;
     static std::set<int> block_acc;
     static int counter;
     static bool bipred;
@@ -40,7 +41,7 @@ public:
     static void setCurrView(int view);
     static void setRefView(int view);
     static void setCurrPoc(int poc);
-    static void insert(int x, int y);
+    static void insert(std::pair<int, int>);
     static void insertBlock(int x, int y, int size);
 
     static void insertUsage();
