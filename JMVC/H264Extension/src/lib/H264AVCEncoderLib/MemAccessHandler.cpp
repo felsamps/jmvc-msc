@@ -4,9 +4,11 @@
 #include <map>
 
 #include "MemAccessHandler.h"
+#include "TestDefinitions.h"
 
 FILE* MemAccessHandler::fp_me;
 FILE* MemAccessHandler::fp_de;
+FILE* MemAccessHandler::fpSearchMap;
 std::set<std::pair<int,int> > MemAccessHandler::acc;
 std::set<int> MemAccessHandler::block_acc;
 int MemAccessHandler::counter;
@@ -25,6 +27,8 @@ std::map<int,int> MemAccessHandler::usage_de;
 int MemAccessHandler::numRefFrames;
 int MemAccessHandler::refsMe;
 int MemAccessHandler::refsDe;
+std::pair<int,int> MemAccessHandler::mvPredictor;
+int MemAccessHandler::mX, MemAccessHandler::mY;
 
 MemAccessHandler::MemAccessHandler() {
 }
@@ -36,17 +40,24 @@ void MemAccessHandler::openFile(unsigned int view) {
     if(view == 0) {
         fp_me = fopen("sw_usage_me.mat", "w");
         fp_de = fopen("sw_usage_de.mat", "w");
+        fpSearchMap = fopen("search_map.mat", "w");
     }
     else {
         fp_me = fopen("sw_usage_me.mat", "a");
         fp_de = fopen("sw_usage_de.mat", "a");
+        fpSearchMap = fopen("search_map.mat", "a");
     }
+    mY = 0;
+    mX = 0;
+    
     
 }
 
 void MemAccessHandler::closeFile() {
     fclose(fp_me);
     fclose(fp_de);
+    fclose(fpSearchMap);
+    printf("%d %d\n", mX, mY);
 }
 
 void MemAccessHandler::init() {
@@ -74,47 +85,73 @@ void MemAccessHandler::insert(std::pair<int, int> sp) {
 void MemAccessHandler::insertBlock(int x, int y, int size) {
     //INSERT SAMPLE ACCESS!
 
-    int posx = currMbX + x;
-    int posy = currMbY + y;
+    int posx = x - mvPredictor.first;
+    int posy = y - mvPredictor.second;
     
     counter ++;
     
+#if SW_ANALYSIS
     for (int i = posx; i < posx+size; i++) {
         for (int j = posy; j < posy+size; j++) {
             std::pair<int, int> sp(i, j);
             insert(sp);
-        }
+        }    
     }
-    /*
-    for (int i = x; i < x+size; i++) {
-        for (int j = y; j < y+size; j++) {
+#else
+    
+    std::pair<int,int> bp0(posx/size       , posy/size      );
+    std::pair<int,int> bp1(posx/size       ,(posy+size)/size);
+    std::pair<int,int> bp2((posx+size)/size, posy/size      );
+    std::pair<int,int> bp3((posx+size)/size,(posy+size)/size);
+
+    acc.insert(bp0);
+    acc.insert(bp1);
+    acc.insert(bp2);
+    acc.insert(bp3);
+#endif
+
+}
+
+void MemAccessHandler::reportSearchMap() {
+    /* for debug */
+    
+    //int offset = sqrt(searchRange) / (16*2);
+    //int minX = ((mvPredictor.first)/16 - offset);
+    //int minY = ((mvPredictor.second)/16 - offset);
+
+    int offset = 11;
+    int minX = -11;
+    int minY = -11;
+    fprintf(fpSearchMap,"%s (%d,%d)\n", (refView==currView) ? "ME" : "DE", mvPredictor.first, mvPredictor.second);
+        
+    for(int i = minY; i < (minY + 2*offset); i++) {
+        for(int j = minX; j < (minX + 2*offset); j++) {
+            std::pair<int,int> p(j, i);
             
-            int block_x, block_y;
-            //INSERT BLOCK ACCESS!
-            if(i >= 0) {
-                block_x = i/16;
+            if(acc.find(p)!=acc.end()) {
+                mY = (i > mY) ? i : mY;
+                mX = (i > mX) ? i : mX;
+                if(i == 0 and j == 0) {
+                    fprintf(fpSearchMap,"* ");
+                }
+                else {
+                    fprintf(fpSearchMap,"1 ");
+                }
             }
-            else {
-                block_x = -((-i)/16) - 1;
+            else{
+                fprintf(fpSearchMap,"0 ");
             }
-
-            if(j >= 0) {
-                block_y = j/16;
-            }
-            else {
-                block_y = -((-j)/16) - 1;
-            }
-
-            block_acc.insert(block_y * H + block_x);
-
         }
-    }*/
+        fprintf(fpSearchMap, "\n");
+    }
+    fprintf(fpSearchMap, "\n");
 
 }
 
 void MemAccessHandler::insertUsage() {
     if( !bipred ) {
-           
+         
+        reportSearchMap();
         int idx = ((currMbY/16) * width/16) + (currMbX/16);
         
         if(currView == refView)  {/* motion estimation */
@@ -152,16 +189,30 @@ void MemAccessHandler::report() {
                        
             
             if(!usage_me.empty()) {
+#if SW_ANALYSIS
                 int usage = usage_me[y*width/16 + x];
                 double swUsage = (double)usage/(double)(searchRange*refsMe);
                 //fprintf(fp_me, "%d %d %d %d %.2f\n", currView, currPoc, usage, refsMe, swUsage * 100);
                 fprintf(fp_me, "%.2f\n", swUsage * 100);
+#else
+                int usage = usage_me[y*width/16 + x];
+                double swUsage = (double)usage/(double)((searchRange*refsMe)/256);
+                //fprintf(fp_me, "%d %d %d %d %.2f\n", currView, currPoc, usage, refsMe, swUsage * 100);
+                fprintf(fp_me, "%.2f\n", swUsage * 100);
+#endif
             }
             if(!usage_de.empty()) {
+#if SW_ANALYSIS
                 int usage = usage_de[y*width/16 + x];
                 double swUsage = (double)usage/(double)(searchRange*refsDe);
                 //fprintf(fp_de, "%d %d %d %d %.2f\n", currView, currPoc, usage, refsDe, swUsage * 100);
                 fprintf(fp_de, "%.2f\n", swUsage * 100);
+#else
+                int usage = usage_de[y*width/16 + x];
+                double swUsage = (double)usage/(double)((searchRange*refsDe)/256);
+                //fprintf(fp_de, "%d %d %d %d %.2f\n", currView, currPoc, usage, refsDe, swUsage * 100);
+                fprintf(fp_de, "%.2f\n", swUsage * 100);
+#endif
             }
         }
     }
@@ -206,4 +257,9 @@ void MemAccessHandler::setCurrPoc(int poc) {
 
 void MemAccessHandler::setNumRefFrames(int num) {
     numRefFrames = num;
+}
+
+void MemAccessHandler::setMvPredictor(int h, int v) {
+    mvPredictor.first = h;
+    mvPredictor.second = v;
 }

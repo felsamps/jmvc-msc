@@ -7,11 +7,13 @@
 #include<cstdlib>
 #include<map>
 #include<utility>
+#include<cmath>
 
 class MemAccessHandler {
 private:
     static FILE* fp_me;
     static FILE* fp_de;
+    static FILE* fpSearchMap;
     static std::set<std::pair<int,int> > acc;
     static std::set<int> block_acc;
     static int counter;
@@ -23,6 +25,8 @@ private:
     static int numRefFrames, refsMe, refsDe;
     static long long int bw;
     static std::map<int, int> usage_me, usage_de;
+    static std::pair<int,int> mvPredictor;
+    static int mX, mY;
     
 public:
     
@@ -46,11 +50,13 @@ public:
 
     static void insertUsage();
     static void report();
+    static void reportSearchMap();
     
     static void setHeight(int h);
     static void setWidth(int w);
     static void setSearchRange(unsigned int range);
     static void setNumRefFrames(int num);
+    static void setMvPredictor(int h, int v);
 };
 
 #endif

@@ -1271,6 +1271,10 @@ Void MotionEstimation::xTZSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt& ru
   Int  iDist       = 0;               //   1 2 3
   Int  iStartX     = cStrukt.iBestX;  //   4 0 5
   Int  iStartY     = cStrukt.iBestY;  //   6 7 8
+  
+#if SW_USAGE_EN
+  MemAccessHandler::setMvPredictor(cStrukt.iBestX, cStrukt.iBestY);
+#endif
 
   // fist search
   for( iDist = 1; iDist <= (Int)uiSearchRange; iDist*=2 )
