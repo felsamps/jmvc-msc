@@ -4228,6 +4228,8 @@ MbEncoder::xEstimateMb16x16( IntMbTempData*&  rpcMbTempData,
 
   RNOK( xCheckBestEstimation(  rpcMbTempData, rpcMbBestData ) );
 
+
+
   RNOK( xCheckInterMbMode8x8(  rpcMbTempData, rpcMbBestData, pcMbRefData, rcRefFrameList0, rcRefFrameList1, pcMbDataAccessBase ) );
 
   return Err::m_nOK;

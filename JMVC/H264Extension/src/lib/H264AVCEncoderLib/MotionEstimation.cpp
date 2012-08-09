@@ -580,6 +580,10 @@ Void MotionEstimation::xPelLogSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt
   SearchRect cSearchRect;
   cSearchRect.init( uiSearchRange, cMvPred, m_cMin, m_cMax );
 
+#ifdef SW_USAGE_EN
+  MemAccessHandler::setSearchRange(uiSearchRange);
+#endif
+
   rcMv.limitComponents( m_cMin, m_cMax );
   rcMv >>= 2;
 
@@ -615,6 +619,11 @@ Void MotionEstimation::xPelLogSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt
   Int y = rcMv.getVer();
   pucSearch = pucRef + x + y * iStride;
 
+#if SW_USAGE_EN
+  MemAccessHandler::setMvPredictor(x, y);
+#endif
+
+
   Int dxOld = 0;
   Int dyOld = 0;
   Bool  bContinue;
@@ -640,6 +649,10 @@ Void MotionEstimation::xPelLogSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt
         uiSad = m_cXDSS.Func( &m_cXDSS );
         uiSad += xGetCost( x - iStep, y);
 
+#ifdef SW_USAGE_EN
+		MemAccessHandler::insertBlock(x - iStep, y, 16);
+#endif
+
         if( uiBestSad > uiSad )
         {
           uiBestSad = uiSad;
@@ -653,6 +666,10 @@ Void MotionEstimation::xPelLogSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt
         m_cXDSS.pYSearch = pucSearch + iStep;
         uiSad = m_cXDSS.Func( &m_cXDSS );
         uiSad += xGetCost( x + iStep, y);
+
+#ifdef SW_USAGE_EN
+		MemAccessHandler::insertBlock(x + iStep, y, 16);
+#endif
 
         if( uiBestSad > uiSad )
         {
@@ -668,6 +685,10 @@ Void MotionEstimation::xPelLogSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt
         uiSad = m_cXDSS.Func( &m_cXDSS );
         uiSad += xGetCost( x, y - iStep );
 
+#ifdef SW_USAGE_EN
+		MemAccessHandler::insertBlock(x, y - iStep, 16);
+#endif
+
         if( uiBestSad > uiSad )
         {
           uiBestSad = uiSad;
@@ -682,6 +703,10 @@ Void MotionEstimation::xPelLogSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt
         m_cXDSS.pYSearch = pucSearch + iStepStride;
         uiSad = m_cXDSS.Func( &m_cXDSS );
         uiSad += xGetCost( x, y + iStep );
+
+#ifdef SW_USAGE_EN
+		MemAccessHandler::insertBlock(x, y + iStep, 16);
+#endif
 
         if( uiBestSad > uiSad )
         {
@@ -721,6 +746,10 @@ Void MotionEstimation::xPelLogSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt
         uiSad = m_cXDSS.Func( &m_cXDSS );
         uiSad += xGetCost( x - iStep, y - iStep );
 
+#ifdef SW_USAGE_EN
+		MemAccessHandler::insertBlock(x - iStep, y - iStep, 16);
+#endif
+
         if( uiBestSad > uiSad )
         {
           uiBestSad = uiSad;
@@ -735,6 +764,10 @@ Void MotionEstimation::xPelLogSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt
         m_cXDSS.pYSearch = pucSearch + iStepStride - iStep;
         uiSad = m_cXDSS.Func( &m_cXDSS );
         uiSad += xGetCost( x - iStep, y + iStep );
+
+#ifdef SW_USAGE_EN
+		MemAccessHandler::insertBlock(x - iStep, y + iStep, 16);
+#endif
 
         if( uiBestSad > uiSad )
         {
@@ -754,6 +787,10 @@ Void MotionEstimation::xPelLogSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt
         uiSad = m_cXDSS.Func( &m_cXDSS );
         uiSad += xGetCost( x + iStep, y - iStep );
 
+#ifdef SW_USAGE_EN
+		MemAccessHandler::insertBlock(x + iStep, y - iStep, 16);
+#endif
+
         if( uiBestSad > uiSad )
         {
           uiBestSad = uiSad;
@@ -769,6 +806,10 @@ Void MotionEstimation::xPelLogSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt
         uiSad = m_cXDSS.Func( &m_cXDSS );
         uiSad += xGetCost( x + iStep, y + iStep );
 
+#ifdef SW_USAGE_EN
+		MemAccessHandler::insertBlock(x + iStep, y + iStep, 16);
+#endif
+		
         if( uiBestSad > uiSad )
         {
           uiBestSad = uiSad;
@@ -822,7 +863,7 @@ Void MotionEstimation::xPelLogSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt
   const Bool bFirstSearchDiamond      = 1;  /* 1 = xTZ8PointDiamondSearch   0 = xTZ8PointSquareSearch */        \
   const Bool bFirstSearchStop         = 0;                                                                      \
   const UInt uiFirstSearchRounds      = 3;  /* first search stop X rounds after best match (must be >=1) */     \
-  const Bool bEnableRasterSearch      = 1;                                                                      \
+  const Bool bEnableRasterSearch      = 0;                                                                      \
   const Bool bAlwaysRasterSearch      = 0;  /* ===== 1: BETTER but factor 2 slower ===== */                     \
   const Bool bRasterRefinementEnable  = 0;  /* enable either raster refinement or star refinement */            \
   const Bool bRasterRefinementDiamond = 0;  /* 1 = xTZ8PointDiamondSearch   0 = xTZ8PointSquareSearch */        \
