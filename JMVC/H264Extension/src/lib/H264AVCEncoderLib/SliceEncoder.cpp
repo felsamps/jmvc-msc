@@ -14,6 +14,7 @@
 #include "ReferenceFrameComm.h"
 #include "MemAccessHandler.h"
 #include "TestDefinitions.h"
+#include "SearchMonitor.h"
 
 H264AVC_NAMESPACE_BEGIN
 
@@ -179,7 +180,12 @@ SliceEncoder::encodeSlice( SliceHeader&  rcSliceHeader,
         MemAccessHandler::setCurrPoc(pcFrame->getPOC());
         MemAccessHandler::initCurrMB();
         #endif
-        
+
+		#ifdef DEBUGGER_EN
+		Debugger::print("CURRENT FRAME (%d %d)\n", pcFrame->getViewId(), pcFrame->getPOC() );
+		#endif
+
+		
         
 //~JVT-W080
   //===== loop over macroblocks =====

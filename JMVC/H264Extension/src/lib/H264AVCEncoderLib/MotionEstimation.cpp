@@ -140,7 +140,7 @@ ErrVal MotionEstimation::uninit()
 
 
 
-ErrVal
+ ErrVal
 MotionEstimation::estimateBlockWithStart( const MbDataAccess&  rcMbDataAccess,
                                           const IntFrame&      rcRefFrame,
                                           Mv&                  rcMv,         // <-- MVSTART / --> MV

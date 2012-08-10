@@ -11,6 +11,7 @@
 #include "ReferenceFrameComm.h"
 #include "MemAccessHandler.h"
 #include "TestDefinitions.h"
+#include "SearchMonitor.h"
 
 #include <math.h>
 
@@ -108,6 +109,10 @@ H264AVCEncoder::init(
   MemAccessHandler::openFile(pcCodingParameter->getCurentViewId());
 #endif
 
+#ifdef MONITOR_EN
+  SearchMonitor::init("search_monitor.txt", pcCodingParameter->getCurentViewId(), pcCodingParameter->getFrameWidth(), pcCodingParameter->getFrameWidth(), pcCodingParameter->getTotalFrames());
+#endif
+
   return Err::m_nOK;
 }
 
@@ -146,6 +151,9 @@ H264AVCEncoder::uninit()
 #ifdef SW_USAGE_EN
   MemAccessHandler::closeFile();
 #endif
+  #ifdef MONITOR_EN
+  SearchMonitor::reportAndClose();
+  #endif
 
   return Err::m_nOK;
 }

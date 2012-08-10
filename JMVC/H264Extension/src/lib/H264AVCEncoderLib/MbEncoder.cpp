@@ -13,6 +13,9 @@
 #include "MemAccessHandler.h"
 #include "TestDefinitions.h"
 
+#include "../H264AVCCommonLib/Debugger.h"
+#include "SearchMonitor.h"
+
 
 H264AVC_NAMESPACE_BEGIN
 
@@ -3940,6 +3943,7 @@ MbEncoder::xEstimateMb16x16( IntMbTempData*&  rpcMbTempData,
       uiCost    [0] = uiCostTest;
     }
 
+	
     if( iRefIdxTest == iBLRefIdx[0] )
     {
       uiBitsTest      = ( uiBasePredType == 0 ? 0 : uiMbBits[0] );
@@ -3960,7 +3964,28 @@ MbEncoder::xEstimateMb16x16( IntMbTempData*&  rpcMbTempData,
         uiBits  [0] = uiBitsTest;
         uiCost  [0] = uiCostTest;
       }
+
+	  
     }
+#ifdef DEBUGGER_EN
+	Debugger::print("MB (%d,%d) ", rpcMbTempData->getMbDataAccess().getMbX(), rpcMbTempData->getMbDataAccess().getMbY());
+	Debugger::print("(%d %d) ",pcRefFrame->getViewId(), pcRefFrame->getPoc());
+	Debugger::print("Cost: %d, Bits: %d\n", uiCostTest, uiBitsTest);
+#endif
+#ifdef MONITOR_EN
+	//static void insert(UInt poc, UInt xMb, UInt yMb, h264::Mv& vec, UInt frameId, UInt viewId, UInt cost, UInt bits);
+	SearchMonitor::insert(
+			rpcMbTempData->getSH().getPoc(),
+			rpcMbTempData->getMbDataAccess().getMbX(),
+			rpcMbTempData->getMbDataAccess().getMbY(),
+			cMvLastEst[0][iRefIdxTest],
+			pcRefFrame->getPoc(),
+			pcRefFrame->getViewId(),
+			uiCostTest,
+			uiBitsTest
+	);
+#endif
+			
   }
 
 
@@ -4022,6 +4047,11 @@ MbEncoder::xEstimateMb16x16( IntMbTempData*&  rpcMbTempData,
                                                           PART_16x16, MODE_16x16 ) );
       }
     }
+#ifdef DEBUGGER_EN
+	Debugger::print("MB (%d,%d) ", rpcMbTempData->getMbDataAccess().getMbX(), rpcMbTempData->getMbDataAccess().getMbY());
+	Debugger::print("(%d %d) ",pcRefFrame->getViewId(), pcRefFrame->getPoc());
+	Debugger::print("Cost: %d, Bits: %d\n", uiCostTest, uiBitsTest);
+#endif
   }
 
   

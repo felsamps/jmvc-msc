@@ -60,6 +60,8 @@ OBJS          	= \
 			$(OBJ_DIR)/Multiview.o \
 			$(OBJ_DIR)/ReferenceFrameComm.o \
 			$(OBJ_DIR)/MemAccessHandler.o \
+			$(OBJ_DIR)/SearchMonitor.o \
+
 
 LIBS				= -lpthread
 

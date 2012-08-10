@@ -6,8 +6,9 @@ extern "C" {
 #endif
 
 #define REF_COMM_EN 0
-#define SW_USAGE_EN 1
+#define SW_USAGE_EN 0
 #define DEBUGGER_EN 0
+#define MONITOR_EN 1
     
 /* SW_ANALYSIS == 1 --> pixel accuracy analysis
    SW_ANALYSIS == 0 --> block accuracy analysis*/  
