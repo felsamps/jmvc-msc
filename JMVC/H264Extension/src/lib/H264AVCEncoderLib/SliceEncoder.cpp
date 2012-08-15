@@ -173,17 +173,28 @@ SliceEncoder::encodeSlice( SliceHeader&  rcSliceHeader,
 
 	ReferenceFrameComm::insertComm("W", pcFrame->getViewId(), pcFrame->getPOC());
         #endif
-        
-        #ifdef SW_USAGE_EN
-        MemAccessHandler::setWidth(pcFrame->getFullPelYuvBuffer()->getLWidth());
-        MemAccessHandler::setHeight(pcFrame->getFullPelYuvBuffer()->getLHeight());
-        MemAccessHandler::setCurrPoc(pcFrame->getPOC());
-        MemAccessHandler::initCurrMB();
-        #endif
 
-		#ifdef DEBUGGER_EN
-		Debugger::print("CURRENT FRAME (%d %d)\n", pcFrame->getViewId(), pcFrame->getPOC() );
-		#endif
+	#ifdef MONITOR_EN
+	SearchMonitor::initCounters();
+	for(Int l0=0; l0 < (Int)activeList0; l0++) {
+		SearchMonitor::insertRefFrame(pcFrame->getPOC(), rcList0.getEntry(l0)->getViewId(), rcList0.getEntry(l0)->getPOC());
+	}
+
+	for(Int l1=0; l1 < (Int)activeList1; l1++) {
+		SearchMonitor::insertRefFrame(pcFrame->getPOC(), rcList1.getEntry(l1)->getViewId(), rcList1.getEntry(l1)->getPOC());
+	}
+	#endif
+        
+	#ifdef SW_USAGE_EN
+	MemAccessHandler::setWidth(pcFrame->getFullPelYuvBuffer()->getLWidth());
+	MemAccessHandler::setHeight(pcFrame->getFullPelYuvBuffer()->getLHeight());
+	MemAccessHandler::setCurrPoc(pcFrame->getPOC());
+	MemAccessHandler::initCurrMB();
+	#endif
+
+	#ifdef DEBUGGER_EN
+	Debugger::print("CURRENT FRAME (%d %d)\n", pcFrame->getViewId(), pcFrame->getPOC() );
+	#endif
 
 		
         

@@ -8,8 +8,7 @@
 struct BestMatch {
     h264::Mv* mv;
     UInt refFrameId, refViewId;
-    UInt bestCost, bestBits;
-    
+    UInt bestCost, bestBits;   
     
     BestMatch() {
         mv = new h264::Mv();
@@ -33,16 +32,20 @@ struct BestMatch {
 class SearchMonitor {
 
 private:
-    static FILE *file;
+    static FILE *file, *fileByFrame;
     static BestMatch**** video;
     static UInt w, h, nFrames, currViewId;
+    static std::vector<std::map<std::pair<UInt,UInt>, Int> > refFrames;
+    static Int meRefCounter, deRefCounter;
 
     static std::string xReportSummary();
     static std::string xReportByFrame();
 public:
     SearchMonitor();
-    static void init(std::string name, UInt view, UInt width, UInt height, UInt numFrames);
-    static void insert(UInt poc, UInt xMb, UInt yMb, h264::Mv& vec, UInt frameId, UInt viewId, UInt cost, UInt bits);
+    static void init( UInt view, UInt width, UInt height, UInt numFrames);
+    static void initCounters();
+    static void insertRefFrame(UInt currFrame, UInt viewId, UInt framePOC);
+    static void insert(UInt currFrameId, UInt xMb, UInt yMb, h264::Mv& vec, UInt frameId, UInt viewId, UInt cost, UInt bits);
     static void reportAndClose();
 };
 

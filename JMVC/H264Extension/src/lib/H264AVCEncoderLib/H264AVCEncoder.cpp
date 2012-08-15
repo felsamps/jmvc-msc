@@ -110,7 +110,7 @@ H264AVCEncoder::init(
 #endif
 
 #ifdef MONITOR_EN
-  SearchMonitor::init("search_monitor.txt", pcCodingParameter->getCurentViewId(), pcCodingParameter->getFrameWidth(), pcCodingParameter->getFrameWidth(), pcCodingParameter->getTotalFrames());
+  SearchMonitor::init(pcCodingParameter->getCurentViewId(), pcCodingParameter->getFrameWidth(), pcCodingParameter->getFrameHeight(), pcCodingParameter->getTotalFrames());
 #endif
 
   return Err::m_nOK;

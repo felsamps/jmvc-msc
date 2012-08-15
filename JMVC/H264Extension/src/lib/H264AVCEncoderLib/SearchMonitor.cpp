@@ -1,24 +1,32 @@
-#include "SearchMonitor.h"
+#include <map>
 
-FILE *SearchMonitor::file;
+#include "SearchMonitor.h"
+#include "ReferenceFrameComm.h"
+
+FILE *SearchMonitor::file, *SearchMonitor::fileByFrame;
 BestMatch ****SearchMonitor::video;
 UInt SearchMonitor::w, SearchMonitor::h, SearchMonitor::nFrames, SearchMonitor::currViewId;
+Int SearchMonitor::deRefCounter, SearchMonitor::meRefCounter;
+std::vector<std::map<std::pair<UInt,UInt>, Int> > SearchMonitor::refFrames;
 
 SearchMonitor::SearchMonitor() {
 }
 
-void SearchMonitor::init(std::string name, UInt view, UInt width, UInt height, UInt numFrames) {
+void SearchMonitor::init(UInt view, UInt width, UInt height, UInt numFrames) {
 	if(view == 0) {
-		file = fopen(name.c_str(), "w");
+		file = fopen("search_monitor.mat", "w");
+		fileByFrame = fopen("search_monitor_by_frame.mat", "w");
 	}
 	else {
-		file = fopen(name.c_str(), "a");
+		file = fopen("search_monitor.mat", "a");
+		fileByFrame = fopen("search_monitor_by_frame.mat", "a");
 	}
 
 	currViewId = view;
 	w = width/16;
 	h = height/16;
 	nFrames = numFrames;
+	refFrames.resize(numFrames);
 
 	video = new BestMatch***[numFrames];
 	for (int f = 0; f < numFrames; f++) {
@@ -39,20 +47,26 @@ void SearchMonitor::insert(UInt poc, UInt xMb, UInt yMb, h264::Mv& vec, UInt fra
 }
 
 void SearchMonitor::reportAndClose() {
-	fprintf(file,"%s",xReportSummary().c_str());
-	//xReportByFrame();
-}
-
-std::string SearchMonitor::xReportSummary() {
 	UInt meBestChoices, deBestChoices;
-	std::string report;
+	std::string report, reportByFrame;
 	char temp[10];
 	for (int f = 0; f < nFrames; f++) {
 		meBestChoices = 0;
 		deBestChoices = 0;
-		for (int x = 0; x < w; x++) {
-			for (int y = 0; y < h; y++) {
+
+		sprintf(temp, "V%dF%d\n", currViewId, f);
+		reportByFrame += temp;
+		for (int y = 0; y < h; y++) {
+			for (int x = 0; x < w; x++) {
 				if(video[f][x][y]->refViewId != -1) {
+					std::pair<UInt, UInt> p(video[f][x][y]->refViewId, video[f][x][y]->refFrameId);
+					if(refFrames[f][p] < 0) {
+						sprintf(temp, " %d", refFrames[f][p]);
+					}
+					else {
+						sprintf(temp, "  %d", refFrames[f][p]);
+					}
+					reportByFrame += temp;
 					if(video[f][x][y]->refViewId == currViewId) {
 						meBestChoices ++;
 					}
@@ -61,9 +75,10 @@ std::string SearchMonitor::xReportSummary() {
 					}
 				}
 			}
+			reportByFrame += "\n";
 		}
 		if(meBestChoices+deBestChoices != 0) {
-			sprintf(temp,"%.6f ",meBestChoices/(double)(meBestChoices+deBestChoices));
+			sprintf(temp,"%.2f ",meBestChoices/(double)(meBestChoices+deBestChoices));
 		}
 		else {
 			sprintf(temp,"0.00 ");
@@ -71,6 +86,27 @@ std::string SearchMonitor::xReportSummary() {
 		report += temp;
 	}
 	report += "\n";
-	return report;
 
+	fprintf(file, "%s", report.c_str());
+	fprintf(fileByFrame, "%s", reportByFrame.c_str());
+
+}
+
+void SearchMonitor::initCounters() {
+	fprintf(fileByFrame,"INIT_FRAME\n");
+	deRefCounter = -1;
+	meRefCounter = +1;	
+}
+
+void SearchMonitor::insertRefFrame(UInt currFrame, UInt viewId, UInt framePOC) {
+	std::pair<UInt,UInt> p(viewId,framePOC);
+	if(viewId == currViewId) { //Motion Estimation
+		refFrames[currFrame][p] = meRefCounter;
+		meRefCounter ++;
+	}
+	else { //Disparity Estimation
+		refFrames[currFrame][p] = deRefCounter;
+		deRefCounter --;
+	}
+	fprintf(fileByFrame, "V%dF%d (%d) - SIZE: %d\n\n", viewId, framePOC, refFrames[currFrame][p], refFrames[currFrame].size());
 }
