@@ -159,7 +159,7 @@ SliceEncoder::encodeSlice( SliceHeader&  rcSliceHeader,
 	}
 	/*FELIPE looking for the reference frames for this current slice */
 	
-        #ifdef REF_COMM_EN
+        #if REF_COMM_EN
 	unsigned int activeList0 = rcList0.getActive();
 	unsigned int activeList1 = rcList1.getActive();
 
@@ -174,7 +174,9 @@ SliceEncoder::encodeSlice( SliceHeader&  rcSliceHeader,
 	ReferenceFrameComm::insertComm("W", pcFrame->getViewId(), pcFrame->getPOC());
         #endif
 
-	#ifdef MONITOR_EN
+	#if MONITOR_EN
+	unsigned int activeList0 = rcList0.getActive();
+	unsigned int activeList1 = rcList1.getActive();
 	SearchMonitor::initCounters();
 	for(Int l0=0; l0 < (Int)activeList0; l0++) {
 		SearchMonitor::insertRefFrame(pcFrame->getPOC(), rcList0.getEntry(l0)->getViewId(), rcList0.getEntry(l0)->getPOC());
@@ -185,14 +187,14 @@ SliceEncoder::encodeSlice( SliceHeader&  rcSliceHeader,
 	}
 	#endif
         
-	#ifdef SW_USAGE_EN
+	#if SW_USAGE_EN
 	MemAccessHandler::setWidth(pcFrame->getFullPelYuvBuffer()->getLWidth());
 	MemAccessHandler::setHeight(pcFrame->getFullPelYuvBuffer()->getLHeight());
 	MemAccessHandler::setCurrPoc(pcFrame->getPOC());
 	MemAccessHandler::initCurrMB();
 	#endif
 
-	#ifdef DEBUGGER_EN
+	#if DEBUGGER_EN
 	Debugger::print("CURRENT FRAME (%d %d)\n", pcFrame->getViewId(), pcFrame->getPOC() );
 	#endif
 
@@ -239,7 +241,7 @@ SliceEncoder::encodeSlice( SliceHeader&  rcSliceHeader,
                                              ( uiMbAddress == rcSliceHeader.getLastMbInSlice() ) , true ) );
   }
    //FELIPE     
-#ifdef SW_USAGE_EN
+#if SW_USAGE_EN
     MemAccessHandler::report();
 #endif
     

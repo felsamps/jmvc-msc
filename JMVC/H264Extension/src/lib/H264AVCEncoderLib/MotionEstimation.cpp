@@ -281,7 +281,7 @@ MotionEstimation::estimateBlockWithStart( const MbDataAccess&  rcMbDataAccess,
   xSetCostScale( 2 );
   
   //FELIPE
-  #ifdef SW_USAGE_EN
+  #if SW_USAGE_EN
   MemAccessHandler::setRefView(rcRefFrame.getViewId());
   MemAccessHandler::setBiPred(pcBSP ? true : false);
   
@@ -354,7 +354,7 @@ MotionEstimation::estimateBlockWithStart( const MbDataAccess&  rcMbDataAccess,
   }
   
   //FELIPE
-#ifdef SW_USAGE_EN
+#if SW_USAGE_EN
   MemAccessHandler::insertUsage();
 #endif
   
@@ -580,7 +580,7 @@ Void MotionEstimation::xPelLogSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt
   SearchRect cSearchRect;
   cSearchRect.init( uiSearchRange, cMvPred, m_cMin, m_cMax );
 
-#ifdef SW_USAGE_EN
+#if SW_USAGE_EN
   MemAccessHandler::setSearchRange(uiSearchRange);
 #endif
 
@@ -649,7 +649,7 @@ Void MotionEstimation::xPelLogSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt
         uiSad = m_cXDSS.Func( &m_cXDSS );
         uiSad += xGetCost( x - iStep, y);
 
-#ifdef SW_USAGE_EN
+#if SW_USAGE_EN
 		MemAccessHandler::insertBlock(x - iStep, y, 16);
 #endif
 
@@ -667,7 +667,7 @@ Void MotionEstimation::xPelLogSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt
         uiSad = m_cXDSS.Func( &m_cXDSS );
         uiSad += xGetCost( x + iStep, y);
 
-#ifdef SW_USAGE_EN
+#if SW_USAGE_EN
 		MemAccessHandler::insertBlock(x + iStep, y, 16);
 #endif
 
@@ -685,7 +685,7 @@ Void MotionEstimation::xPelLogSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt
         uiSad = m_cXDSS.Func( &m_cXDSS );
         uiSad += xGetCost( x, y - iStep );
 
-#ifdef SW_USAGE_EN
+#if SW_USAGE_EN
 		MemAccessHandler::insertBlock(x, y - iStep, 16);
 #endif
 
@@ -704,7 +704,7 @@ Void MotionEstimation::xPelLogSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt
         uiSad = m_cXDSS.Func( &m_cXDSS );
         uiSad += xGetCost( x, y + iStep );
 
-#ifdef SW_USAGE_EN
+#if SW_USAGE_EN
 		MemAccessHandler::insertBlock(x, y + iStep, 16);
 #endif
 
@@ -746,7 +746,7 @@ Void MotionEstimation::xPelLogSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt
         uiSad = m_cXDSS.Func( &m_cXDSS );
         uiSad += xGetCost( x - iStep, y - iStep );
 
-#ifdef SW_USAGE_EN
+#if SW_USAGE_EN
 		MemAccessHandler::insertBlock(x - iStep, y - iStep, 16);
 #endif
 
@@ -765,7 +765,7 @@ Void MotionEstimation::xPelLogSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt
         uiSad = m_cXDSS.Func( &m_cXDSS );
         uiSad += xGetCost( x - iStep, y + iStep );
 
-#ifdef SW_USAGE_EN
+#if SW_USAGE_EN
 		MemAccessHandler::insertBlock(x - iStep, y + iStep, 16);
 #endif
 
@@ -787,7 +787,7 @@ Void MotionEstimation::xPelLogSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt
         uiSad = m_cXDSS.Func( &m_cXDSS );
         uiSad += xGetCost( x + iStep, y - iStep );
 
-#ifdef SW_USAGE_EN
+#if SW_USAGE_EN
 		MemAccessHandler::insertBlock(x + iStep, y - iStep, 16);
 #endif
 
@@ -806,7 +806,7 @@ Void MotionEstimation::xPelLogSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt
         uiSad = m_cXDSS.Func( &m_cXDSS );
         uiSad += xGetCost( x + iStep, y + iStep );
 
-#ifdef SW_USAGE_EN
+#if SW_USAGE_EN
 		MemAccessHandler::insertBlock(x + iStep, y + iStep, 16);
 #endif
 		
@@ -896,7 +896,7 @@ Void MotionEstimation::xTZSearchHelp( IntTZSearchStrukt& rcStrukt, const Int iSe
   uiSad           += MotionEstimationCost::xGetCost( iSearchX, iSearchY );
   
   //FELIPE
-#ifdef SW_USAGE_EN
+#if SW_USAGE_EN
   MemAccessHandler::insertBlock(iSearchX, iSearchY, 16);
 #endif
   
@@ -1266,7 +1266,7 @@ Void MotionEstimation::xTZSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt& ru
   if( ! uiSearchRange ) { uiSearchRange = m_cParams.getSearchRange(); }
   
   //FELIPE
-#ifdef SW_USAGE_EN
+#if SW_USAGE_EN
   MemAccessHandler::setSearchRange(uiSearchRange);
 #endif
   

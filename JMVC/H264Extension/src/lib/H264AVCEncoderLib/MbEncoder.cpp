@@ -484,7 +484,7 @@ MbEncoder::encodeMacroblock( MbDataAccess&  rcMbDataAccess,
 
   }
   //Felipe
-#ifdef SW_USAGE_EN
+#if SW_USAGE_EN
   MemAccessHandler::setMb(rcMbDataAccess.getMbX(), rcMbDataAccess.getMbY());
   MemAccessHandler::setCurrView(rcMbDataAccess.getSH().getViewId());
   
@@ -3967,12 +3967,12 @@ MbEncoder::xEstimateMb16x16( IntMbTempData*&  rpcMbTempData,
 
 	  
     }
-#ifdef DEBUGGER_EN
+#if DEBUGGER_EN
 	Debugger::print("MB (%d,%d) ", rpcMbTempData->getMbDataAccess().getMbX(), rpcMbTempData->getMbDataAccess().getMbY());
 	Debugger::print("(%d %d) ",pcRefFrame->getViewId(), pcRefFrame->getPoc());
 	Debugger::print("Cost: %d, Bits: %d\n", uiCostTest, uiBitsTest);
 #endif
-#ifdef MONITOR_EN
+#if MONITOR_EN
 	//static void insert(UInt poc, UInt xMb, UInt yMb, h264::Mv& vec, UInt frameId, UInt viewId, UInt cost, UInt bits);
 	SearchMonitor::insert(
 			rpcMbTempData->getSH().getPoc(),
@@ -4047,7 +4047,7 @@ MbEncoder::xEstimateMb16x16( IntMbTempData*&  rpcMbTempData,
                                                           PART_16x16, MODE_16x16 ) );
       }
     }
-#ifdef DEBUGGER_EN
+#if DEBUGGER_EN
 	Debugger::print("MB (%d,%d) ", rpcMbTempData->getMbDataAccess().getMbX(), rpcMbTempData->getMbDataAccess().getMbY());
 	Debugger::print("(%d %d) ",pcRefFrame->getViewId(), pcRefFrame->getPoc());
 	Debugger::print("Cost: %d, Bits: %d\n", uiCostTest, uiBitsTest);

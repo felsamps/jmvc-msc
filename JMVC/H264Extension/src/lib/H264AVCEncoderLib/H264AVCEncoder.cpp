@@ -97,19 +97,19 @@ H264AVCEncoder::init(
   m_cAccessUnitList.clear();
 
   //FELIPE
-#ifdef REF_COMM_EN
+#if REF_COMM_EN
   ReferenceFrameComm::init(pcCodingParameter->getCurentViewId());
 #endif
 
-#ifdef DEBUGGER_EN
+#if DEBUGGER_EN
   Debugger::initFile("debug.txt", pcCodingParameter->getCurentViewId());
 #endif
   
-#ifdef SW_USAGE_EN
+#if SW_USAGE_EN
   MemAccessHandler::openFile(pcCodingParameter->getCurentViewId());
 #endif
 
-#ifdef MONITOR_EN
+#if MONITOR_EN
   SearchMonitor::init(pcCodingParameter->getCurentViewId(), pcCodingParameter->getFrameWidth(), pcCodingParameter->getFrameHeight(), pcCodingParameter->getTotalFrames());
 #endif
 
@@ -142,18 +142,18 @@ H264AVCEncoder::uninit()
   m_cAccessUnitList.clear();
   
   //FELIPE
-#ifdef DEBUGGER_EN
-  Debugger::closeFile();
+#if DEBUGGER_EN
+	Debugger::closeFile();
 #endif
-#ifdef REF_COMM_EN
-  ReferenceFrameComm::reportAndClose();
+#if REF_COMM_EN
+	ReferenceFrameComm::reportAndClose();
 #endif
-#ifdef SW_USAGE_EN
-  MemAccessHandler::closeFile();
+#if SW_USAGE_EN
+	MemAccessHandler::closeFile();
 #endif
-  #ifdef MONITOR_EN
-  SearchMonitor::reportAndClose();
-  #endif
+#if MONITOR_EN
+	SearchMonitor::reportAndClose();
+#endif
 
   return Err::m_nOK;
 }
