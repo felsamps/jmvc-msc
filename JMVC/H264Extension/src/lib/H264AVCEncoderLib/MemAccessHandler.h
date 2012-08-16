@@ -19,14 +19,13 @@ private:
     static int counter;
     static bool bipred;
     static int width, height;
-    static int refView, currView, currPoc;
+    static int refView, currView, currPoc, refPoc;
     static int currMbX, currMbY;
-    static unsigned int searchRange;
+    static unsigned int searchWindow, searchRange;
     static int numRefFrames, refsMe, refsDe;
     static long long int bw;
     static std::map<int, int> usage_me, usage_de;
     static std::pair<int,int> mvPredictor;
-    static int mX, mY;
     
 public:
     
@@ -44,6 +43,7 @@ public:
     static void setBiPred(bool flag);
     static void setCurrView(int view);
     static void setRefView(int view);
+    static void setRefPoc(int poc);
     static void setCurrPoc(int poc);
     static void insert(std::pair<int, int>);
     static void insertBlock(int x, int y, int size);
@@ -54,7 +54,7 @@ public:
     
     static void setHeight(int h);
     static void setWidth(int w);
-    static void setSearchRange(unsigned int range);
+    static void setSearchRange(unsigned int range, int minX, int maxX, int minY, int maxY);
     static void setNumRefFrames(int num);
     static void setMvPredictor(int h, int v);
 };

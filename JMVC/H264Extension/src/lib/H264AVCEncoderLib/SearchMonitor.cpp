@@ -61,10 +61,10 @@ void SearchMonitor::reportAndClose() {
 				if(video[f][x][y]->refViewId != -1) {
 					std::pair<UInt, UInt> p(video[f][x][y]->refViewId, video[f][x][y]->refFrameId);
 					if(refFrames[f][p] < 0) {
-						sprintf(temp, " %d", refFrames[f][p]);
+						sprintf(temp, "%d;", refFrames[f][p]);
 					}
 					else {
-						sprintf(temp, "  %d", refFrames[f][p]);
+						sprintf(temp, "%d;", refFrames[f][p]);
 					}
 					reportByFrame += temp;
 					if(video[f][x][y]->refViewId == currViewId) {

@@ -283,6 +283,7 @@ MotionEstimation::estimateBlockWithStart( const MbDataAccess&  rcMbDataAccess,
   //FELIPE
   #if SW_USAGE_EN
   MemAccessHandler::setRefView(rcRefFrame.getViewId());
+  MemAccessHandler::setRefPoc(rcRefFrame.getPOC());
   MemAccessHandler::setBiPred(pcBSP ? true : false);
   
   MemAccessHandler::init();
@@ -580,7 +581,7 @@ Void MotionEstimation::xPelLogSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt
   SearchRect cSearchRect;
   cSearchRect.init( uiSearchRange, cMvPred, m_cMin, m_cMax );
 
-#if SW_USAGE_EN
+#if !SW_USAGE_EN
   MemAccessHandler::setSearchRange(uiSearchRange);
 #endif
 
@@ -1266,14 +1267,16 @@ Void MotionEstimation::xTZSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt& ru
   if( ! uiSearchRange ) { uiSearchRange = m_cParams.getSearchRange(); }
   
   //FELIPE
-#if SW_USAGE_EN
-  MemAccessHandler::setSearchRange(uiSearchRange);
-#endif
+
   
   rcMv.limitComponents(MotionCompensation::m_cMin, MotionCompensation::m_cMax );
   SearchRect cSearchRect;
   rcMv >>= 2;
   cSearchRect.init( uiSearchRange, rcMv, MotionCompensation::m_cMin, MotionCompensation::m_cMax );
+
+#if SW_USAGE_EN
+  MemAccessHandler::setSearchRange(uiSearchRange, cSearchRect.iNegHorLimit, cSearchRect.iPosHorLimit, cSearchRect.iNegVerLimit, cSearchRect.iPosVerLimit);
+#endif
 
   // init TZSearchStrukt
   IntTZSearchStrukt cStrukt;
