@@ -11,4 +11,4 @@ mem-comm-model/dist/
 mem-comm-model/build/
 mem-comm-model/outputs/
 jmvc-msc/
-!JMVC/H264Extension/src/lib/H264AVCEncoderLib/TestDefinitions.h
+JMVC/H264Extension/src/lib/H264AVCEncoderLib/TestDefinitions.h
