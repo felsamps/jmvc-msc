@@ -54,7 +54,7 @@ public:
     
     static void setHeight(int h);
     static void setWidth(int w);
-    static void setSearchRange(unsigned int range, int minX, int maxX, int minY, int maxY);
+    static void setSearchRange(unsigned int range);
     static void setNumRefFrames(int num);
     static void setMvPredictor(int h, int v);
 };

@@ -581,7 +581,7 @@ Void MotionEstimation::xPelLogSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt
   SearchRect cSearchRect;
   cSearchRect.init( uiSearchRange, cMvPred, m_cMin, m_cMax );
 
-#if !SW_USAGE_EN
+#if SW_USAGE_EN
   MemAccessHandler::setSearchRange(uiSearchRange);
 #endif
 
@@ -1275,7 +1275,7 @@ Void MotionEstimation::xTZSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt& ru
   cSearchRect.init( uiSearchRange, rcMv, MotionCompensation::m_cMin, MotionCompensation::m_cMax );
 
 #if SW_USAGE_EN
-  MemAccessHandler::setSearchRange(uiSearchRange, cSearchRect.iNegHorLimit, cSearchRect.iPosHorLimit, cSearchRect.iNegVerLimit, cSearchRect.iPosVerLimit);
+  MemAccessHandler::setSearchRange(uiSearchRange);
 #endif
 
   // init TZSearchStrukt

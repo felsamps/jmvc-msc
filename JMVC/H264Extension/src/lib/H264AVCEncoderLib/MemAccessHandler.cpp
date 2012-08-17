@@ -230,7 +230,7 @@ void MemAccessHandler::incBW(int value) {
     bw += value;
 }
 
-void MemAccessHandler::setSearchRange(unsigned int range, int minX, int maxX, int minY, int maxY) {
+void MemAccessHandler::setSearchRange(unsigned int range) {
 	searchWindow = (range*2+16) * (range*2+16);
 	searchRange = range;
 	
