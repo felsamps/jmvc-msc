@@ -53,10 +53,7 @@ void SearchMonitor::reportAndClose() {
 	for (int f = 0; f < nFrames; f++) {
 		meBestChoices = 0;
 		deBestChoices = 0;
-
-		sprintf(temp, "V%dF%d\n", currViewId, f);
-		reportByFrame += temp;
-		for (int y = 0; y < h; y++) {
+		for (int y = h-1; y >= 0; y--) {
 			for (int x = 0; x < w; x++) {
 				if(video[f][x][y]->refViewId != -1) {
 					std::pair<UInt, UInt> p(video[f][x][y]->refViewId, video[f][x][y]->refFrameId);
@@ -66,22 +63,26 @@ void SearchMonitor::reportAndClose() {
 					else {
 						sprintf(temp, "%d;", refFrames[f][p]);
 					}
-					reportByFrame += temp;
+					
 					if(video[f][x][y]->refViewId == currViewId) {
 						meBestChoices ++;
 					}
 					else {
 						deBestChoices ++;
 					}
+					reportByFrame += temp;
+				}
+				else {
+					reportByFrame += "0;";
 				}
 			}
 			reportByFrame += "\n";
 		}
 		if(meBestChoices+deBestChoices != 0) {
-			sprintf(temp,"%.2f ",meBestChoices/(double)(meBestChoices+deBestChoices));
+			sprintf(temp,"%.2f;",meBestChoices/(double)(meBestChoices+deBestChoices));
 		}
 		else {
-			sprintf(temp,"0.00 ");
+			sprintf(temp,"0.00;");
 		}
 		report += temp;
 	}
@@ -93,7 +94,6 @@ void SearchMonitor::reportAndClose() {
 }
 
 void SearchMonitor::initCounters() {
-	fprintf(fileByFrame,"INIT_FRAME\n");
 	deRefCounter = -1;
 	meRefCounter = +1;	
 }
@@ -108,5 +108,4 @@ void SearchMonitor::insertRefFrame(UInt currFrame, UInt viewId, UInt framePOC) {
 		refFrames[currFrame][p] = deRefCounter;
 		deRefCounter --;
 	}
-	fprintf(fileByFrame, "V%dF%d (%d) - SIZE: %d\n\n", viewId, framePOC, refFrames[currFrame][p], refFrames[currFrame].size());
 }

@@ -15,9 +15,6 @@
 
 #include <math.h>
 
-
-
-
 H264AVC_NAMESPACE_BEGIN
 
 
