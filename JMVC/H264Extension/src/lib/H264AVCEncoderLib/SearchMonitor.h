@@ -6,23 +6,27 @@
 #include <string>
 
 struct BestMatch {
-    h264::Mv* mv;
+    std::map<Int, h264::Mv*> mvList;
     UInt refFrameId, refViewId;
-    UInt bestCost, bestBits;   
+    UInt bestCost, bestBits;
+    Int bestRef;
     
     BestMatch() {
-        mv = new h264::Mv();
+        bestRef = 0;
+        mvList.clear();
         refFrameId = -1;
         refViewId = -1;
         bestCost = 0xFFFFFFFF;
         bestBits = 0xFFFFFFFF;
     }
 
-    void set(h264::Mv& vec, UInt frameId, UInt viewId, UInt cost, UInt bits) {
+    void set(h264::Mv& vec, UInt frameId, UInt viewId, Int refId, UInt cost, UInt bits) {
+        h264::Mv *mv = new h264::Mv(vec.getVer(), vec.getHor());
+        mvList[refId] = mv;
         if((cost + bits) < (bestCost + bestBits)) {
-            mv->set(vec.getVer(), vec.getHor());
-            this->refFrameId = frameId;
-            this->refViewId = viewId;
+            refFrameId = frameId;
+            refViewId = viewId;
+            bestRef = refId;
             bestCost = cost;
             bestBits = bits;
         }
@@ -32,14 +36,15 @@ struct BestMatch {
 class SearchMonitor {
 
 private:
-    static FILE *file, *fileByFrame;
+    static FILE *file, *fileByFrame, *fileMvMe, *fileMvDe;
     static BestMatch**** video;
     static UInt w, h, nFrames, currViewId;
     static std::vector<std::map<std::pair<UInt,UInt>, Int> > refFrames;
     static Int meRefCounter, deRefCounter;
 
-    static std::string xReportSummary();
-    static std::string xReportByFrame();
+    static void xReportRefFrame();
+    static void xReportMvTracing();
+
 public:
     SearchMonitor();
     static void init( UInt view, UInt width, UInt height, UInt numFrames);

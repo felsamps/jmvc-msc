@@ -4052,6 +4052,19 @@ MbEncoder::xEstimateMb16x16( IntMbTempData*&  rpcMbTempData,
 	Debugger::print("(%d %d) ",pcRefFrame->getViewId(), pcRefFrame->getPoc());
 	Debugger::print("Cost: %d, Bits: %d\n", uiCostTest, uiBitsTest);
 #endif
+	#if MONITOR_EN
+	//static void insert(UInt poc, UInt xMb, UInt yMb, h264::Mv& vec, UInt frameId, UInt viewId, UInt cost, UInt bits);
+	SearchMonitor::insert(
+			rpcMbTempData->getSH().getPoc(),
+			rpcMbTempData->getMbDataAccess().getMbX(),
+			rpcMbTempData->getMbDataAccess().getMbY(),
+			cMvLastEst[1][iRefIdxTest],
+			pcRefFrame->getPoc(),
+			pcRefFrame->getViewId(),
+			uiCostTest,
+			uiBitsTest
+	);
+#endif
   }
 
   
