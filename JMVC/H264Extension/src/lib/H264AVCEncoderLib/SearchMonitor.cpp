@@ -2,6 +2,7 @@
 
 #include "SearchMonitor.h"
 #include "ReferenceFrameComm.h"
+#include "TestDefinitions.h"
 
 FILE *SearchMonitor::file, *SearchMonitor::fileByFrame, *SearchMonitor::fileMvMe, *SearchMonitor::fileMvDe;
 BestMatch ****SearchMonitor::video;
@@ -14,16 +15,24 @@ SearchMonitor::SearchMonitor() {
 
 void SearchMonitor::init(UInt view, UInt width, UInt height, UInt numFrames) {
 	if(view == 0) {
+#if REF_DIRECTION_EN
 		file = fopen("search_monitor.mat", "w");
 		fileByFrame = fopen("search_monitor_by_frame.mat", "w");
+#endif
+#if PR_ANALYSIS_EN
 		fileMvMe = fopen("mv_tracing_me.mat", "w");
 		fileMvDe = fopen("mv_tracing_de.mat", "w");
+#endif
 	}
 	else {
+#if REF_DIRECTION_EN
 		file = fopen("search_monitor.mat", "a");
 		fileByFrame = fopen("search_monitor_by_frame.mat", "a");
+#endif
+#if PR_ANALYSIS_EN
 		fileMvMe = fopen("mv_tracing_me.mat", "a");
 		fileMvDe = fopen("mv_tracing_de.mat", "a");
+#endif
 	}
 
 	currViewId = view;
@@ -48,7 +57,6 @@ void SearchMonitor::insert(UInt poc, UInt xMb, UInt yMb, h264::Mv& vec, UInt fra
 	BestMatch* bm = video[poc][xMb][yMb];
 	std::pair<UInt, UInt> p(viewId, frameId);
 	bm->set(vec, frameId, viewId, refFrames[poc][p], cost, bits);
-	//fprintf(fileMv, "%d - (%d,%d) -> V%dF%d Id: %d\n", poc, xMb, yMb, viewId, frameId, refFrames[poc][p]);
 	
 }
 
@@ -126,12 +134,17 @@ void SearchMonitor::xReportMvTracing() {
 }
 
 void SearchMonitor::reportAndClose() {
+#if PR_ANALYSIS_EN
 	xReportMvTracing();
+	fclose(fileMvMe);
+	fclose(fileMvDe);
+#endif
+#if REF_DIRECTION_EN
 	xReportRefFrame();
 	fclose(file);
 	fclose(fileByFrame);
-	fclose(fileMvMe);
-	fclose(fileMvDe);
+#endif
+
 }
 
 void SearchMonitor::initCounters() {
