@@ -4,7 +4,10 @@
 #include "ReferenceFrameComm.h"
 #include "TestDefinitions.h"
 
-FILE *SearchMonitor::file, *SearchMonitor::fileByFrame, *SearchMonitor::fileMvMe, *SearchMonitor::fileMvDe;
+FILE *SearchMonitor::file, *SearchMonitor::fileByFrame;
+FILE *SearchMonitor::fileMvMe, *SearchMonitor::fileMvDe;
+FILE *SearchMonitor::fileMvdMe, *SearchMonitor::fileMvdDe;
+
 BestMatch ****SearchMonitor::video;
 UInt SearchMonitor::w, SearchMonitor::h, SearchMonitor::nFrames, SearchMonitor::currViewId;
 Int SearchMonitor::deRefCounter, SearchMonitor::meRefCounter;
@@ -22,6 +25,9 @@ void SearchMonitor::init(UInt view, UInt width, UInt height, UInt numFrames) {
 #if PR_ANALYSIS_EN
 		fileMvMe = fopen("mv_tracing_me.mat", "w");
 		fileMvDe = fopen("mv_tracing_de.mat", "w");
+		fileMvdMe = fopen("mvd_me.mat", "w");
+		fileMvdDe = fopen("mvd_de.mat", "w");
+		
 #endif
 	}
 	else {
@@ -32,6 +38,8 @@ void SearchMonitor::init(UInt view, UInt width, UInt height, UInt numFrames) {
 #if PR_ANALYSIS_EN
 		fileMvMe = fopen("mv_tracing_me.mat", "a");
 		fileMvDe = fopen("mv_tracing_de.mat", "a");
+		fileMvdMe = fopen("mvd_me.mat", "a");
+		fileMvdDe = fopen("mvd_de.mat", "a");
 #endif
 	}
 
@@ -106,8 +114,32 @@ void SearchMonitor::xReportRefFrame() {
 	fprintf(fileByFrame, "%s", reportByFrame.c_str());
 }
 
+h264::Mv* SearchMonitor::xCalcMvd(UInt f, UInt x, UInt y, Int idx) {
+	h264::Mv *mv = video[f][x][y]->mvList[idx];
+	Int xMvp, yMvp;
+	/* simple case */
+	if(x != 0)  { /* x!=0 and y==X */
+		xMvp = x-1;
+		yMvp = y;
+	}
+	else {
+		if(y != 0) { /* x==0 and y!=0 */
+			xMvp = x;
+			yMvp = y-1;
+		}
+		else { /* x==0 and y==0 */
+			xMvp = x;
+			yMvp = y;
+		}
+	}
+	h264::Mv *mvp = video[f][xMvp][yMvp]->mvList[idx];
+	h264::Mv *mvd = new h264::Mv( (mvp->getHor() - mv->getHor()) , (mvp->getVer() - mv->getVer()) );
+	return mvd;
+	
+}
+
 void SearchMonitor::xReportMvTracing() {
-	std::string report;
+	std::string reportMv, reportMvd;
 	char temp[15];
 	for (int f = 0; f < nFrames; f++) {
 		std::map<std::pair<UInt,UInt>, Int> refs = refFrames[f];
@@ -116,19 +148,26 @@ void SearchMonitor::xReportMvTracing() {
 			Int idx = (*it).second;
 			for (int y = 0; y < h; y++) {
 				for (int x = 0; x < w; x++) {
+					/* MotionDisparity Vector Printing */
 					h264::Mv *mv = video[f][x][y]->mvList[idx];
 					sprintf(temp, "%d %d\n", mv->getHor(), mv->getVer());
-					report += temp;
+					reportMv += temp;
+					/* Differential Vector Printing */
+					h264::Mv *mvd = xCalcMvd(f, x, y, idx);
+					sprintf(temp, "%d %d\n", mvd->getHor(), mvd->getVer());
+					reportMvd += temp;
 				}
 			}
 			
 			if(currViewId == p.first) { //Motion Estimation
-				fprintf(fileMvMe, "%s", report.c_str());
+				fprintf(fileMvMe, "%s", reportMv.c_str());
+				fprintf(fileMvdMe, "%s", reportMvd.c_str());
 			}
 			else { //Disparity Estimation
-				fprintf(fileMvDe, "%s", report.c_str());
+				fprintf(fileMvDe, "%s", reportMv.c_str());
+				fprintf(fileMvdDe, "%s", reportMvd.c_str());
 			}
-			report.clear();
+			reportMv.clear();
 		}		
 	}
 }
@@ -138,6 +177,8 @@ void SearchMonitor::reportAndClose() {
 	xReportMvTracing();
 	fclose(fileMvMe);
 	fclose(fileMvDe);
+	fclose(fileMvdMe);
+	fclose(fileMvdDe);
 #endif
 #if REF_DIRECTION_EN
 	xReportRefFrame();

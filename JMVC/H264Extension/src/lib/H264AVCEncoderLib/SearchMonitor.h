@@ -36,7 +36,9 @@ struct BestMatch {
 class SearchMonitor {
 
 private:
-    static FILE *file, *fileByFrame, *fileMvMe, *fileMvDe;
+    static FILE *file, *fileByFrame;
+    static FILE *fileMvMe, *fileMvDe;
+    static FILE *fileMvdMe, *fileMvdDe;
     static BestMatch**** video;
     static UInt w, h, nFrames, currViewId;
     static std::vector<std::map<std::pair<UInt,UInt>, Int> > refFrames;
@@ -44,6 +46,7 @@ private:
 
     static void xReportRefFrame();
     static void xReportMvTracing();
+    static h264::Mv* xCalcMvd(UInt f, UInt x, UInt y, Int idx);
 
 public:
     SearchMonitor();
