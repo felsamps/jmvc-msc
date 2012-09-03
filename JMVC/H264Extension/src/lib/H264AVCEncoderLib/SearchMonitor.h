@@ -4,6 +4,7 @@
 #include "../../../include/H264AVCCommonLib.h"
 #include <cstdio>
 #include <string>
+#include <algorithm>
 
 struct BestMatch {
     std::map<Int, h264::Mv*> mvList;
@@ -47,6 +48,7 @@ private:
     static void xReportRefFrame();
     static void xReportMvTracing();
     static h264::Mv* xCalcMvd(UInt f, UInt x, UInt y, Int idx);
+    static h264::Mv* xGenPredictedMv02(UInt f, Int x, Int y, Int idx);
 
 public:
     SearchMonitor();

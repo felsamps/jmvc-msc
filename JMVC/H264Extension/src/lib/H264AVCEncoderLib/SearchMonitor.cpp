@@ -114,27 +114,62 @@ void SearchMonitor::xReportRefFrame() {
 	fprintf(fileByFrame, "%s", reportByFrame.c_str());
 }
 
-h264::Mv* SearchMonitor::xCalcMvd(UInt f, UInt x, UInt y, Int idx) {
-	h264::Mv *mv = video[f][x][y]->mvList[idx];
-	Int xMvp, yMvp;
-	/* simple case */
-	if(x != 0)  { /* x!=0 and y==X */
-		xMvp = x-1;
-		yMvp = y;
+h264::Mv* SearchMonitor::xGenPredictedMv02(UInt f, Int x, Int y, Int idx) {
+	std::vector<Int> xMvp, yMvp;
+	if(x == 0 && y == 0) {
+		/* Original vector must be sent */
+	}
+	if(x == 0 && y != 0 ) {
+		xMvp.push_back(x); yMvp.push_back(y-1);
+		xMvp.push_back(x+1); yMvp.push_back(y-1);
+	}
+	if(x > 0 && y == 0) {
+		xMvp.push_back(x-1); yMvp.push_back(y);
+	}
+	if(x == (w-1) && y != 0) {
+		xMvp.push_back(x-1); yMvp.push_back(y);
+		xMvp.push_back(x-1); yMvp.push_back(y-1);
+		xMvp.push_back(x); yMvp.push_back(y-1);
+	}
+	if(x > 0 && x < (w-1) && y != 0) {
+		xMvp.push_back(x-1); yMvp.push_back(y);
+		xMvp.push_back(x+1); yMvp.push_back(y-1);
+		xMvp.push_back(x); yMvp.push_back(y-1);
+	}
+
+	for (int i = 0; i < xMvp.size(); i++) {
+		Int xMv = xMvp[i];
+		Int yMv = yMvp[i];
+		xMvp[i] = video[f][xMv][yMv]->mvList[idx]->getHor();
+		yMvp[i] = video[f][xMv][yMv]->mvList[idx]->getVer();
+	}
+
+	if(xMvp.size() == 2) {
+		return new h264::Mv((xMvp[0]+xMvp[1])/2, (yMvp[0]+yMvp[1])/2);
 	}
 	else {
-		if(y != 0) { /* x==0 and y!=0 */
-			xMvp = x;
-			yMvp = y-1;
+		std::sort(xMvp.begin(), xMvp.end());
+		std::sort(yMvp.begin(), yMvp.end());
+		if(xMvp.size() == 1) {
+			return new h264::Mv(xMvp[0], yMvp[0]);
 		}
-		else { /* x==0 and y==0 */
-			xMvp = x;
-			yMvp = y;
+		else {
+			return new h264::Mv(xMvp[1], yMvp[1]);
 		}
+											 
 	}
-	h264::Mv *mvp = video[f][xMvp][yMvp]->mvList[idx];
-	h264::Mv *mvd = new h264::Mv( (mvp->getHor() - mv->getHor()) , (mvp->getVer() - mv->getVer()) );
-	return mvd;
+}
+
+h264::Mv* SearchMonitor::xCalcMvd(UInt f, UInt x, UInt y, Int idx) {
+	h264::Mv *mv = video[f][x][y]->mvList[idx];
+	if(x != 0 && y != 0) {
+		h264::Mv *mvp = xGenPredictedMv02(f, x, y, idx);
+		h264::Mv *mvd = new h264::Mv( (mvp->getHor() - mv->getHor()) , (mvp->getVer() - mv->getVer()) );
+		return mvd;
+	}
+	else {
+		return mv;
+	}
 	
 }
 
@@ -168,6 +203,7 @@ void SearchMonitor::xReportMvTracing() {
 				fprintf(fileMvdDe, "%s", reportMvd.c_str());
 			}
 			reportMv.clear();
+			reportMvd.clear();
 		}		
 	}
 }
