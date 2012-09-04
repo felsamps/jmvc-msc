@@ -289,6 +289,10 @@ MotionEstimation::estimateBlockWithStart( const MbDataAccess&  rcMbDataAccess,
   MemAccessHandler::init();
   #endif
 
+#if DEBUGGER_EN
+  Debugger::print("%d %d\n", rcRefFrame.getViewId(), rcRefFrame.getPOC())
+#endif
+
   if( ! bQPelRefinementOnly )
   {
     if( uiSearchRange )

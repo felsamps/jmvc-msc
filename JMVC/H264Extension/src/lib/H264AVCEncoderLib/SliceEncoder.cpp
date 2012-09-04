@@ -243,6 +243,7 @@ SliceEncoder::encodeSlice( SliceHeader&  rcSliceHeader,
    //FELIPE     
 #if SW_USAGE_EN
     MemAccessHandler::report();
+	MemAccessHandler::reportSearchOccurrences();
 #endif
     
   

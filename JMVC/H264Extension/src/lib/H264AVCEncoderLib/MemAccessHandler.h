@@ -1,6 +1,7 @@
 #ifndef _MEMACCESSHANDLER_H
 #define	_MEMACCESSHANDLER_H
 
+#include "../../../include/H264AVCCommonLib.h"
 #include<set>
 #include<cstdio>
 #include<string>
@@ -26,12 +27,11 @@ private:
     static long long int bw;
     static std::map<int, int> usage_me, usage_de;
     static std::pair<int,int> mvPredictor;
-    static long long **swMe, **swDe, totalMe, totalDe;
 
-    static void xReportFinalSearchMap();
+    static std::map<std::pair<UInt,UInt>, long long**> swMap;
+    static std::list<std::pair<UInt, UInt> > refs;
     
 public:
-    
     
     MemAccessHandler();
     virtual ~MemAccessHandler();
@@ -54,12 +54,15 @@ public:
     static void insertUsage();
     static void report();
     static void reportSearchMap();
+    static void reportSearchOccurrences();
     
     static void setHeight(int h);
     static void setWidth(int w);
     static void setSearchRange(unsigned int range);
     static void setNumRefFrames(int num);
     static void setMvPredictor(int h, int v);
+
+    static void insertRefFrame(UInt view, UInt poc);
 };
 
 #endif

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string>
 #include <map>
+#include <list>
 
 #include "MemAccessHandler.h"
 #include "TestDefinitions.h"
@@ -29,7 +30,8 @@ int MemAccessHandler::numRefFrames;
 int MemAccessHandler::refsMe;
 int MemAccessHandler::refsDe;
 std::pair<int,int> MemAccessHandler::mvPredictor;
-long long **MemAccessHandler::swMe, **MemAccessHandler::swDe, MemAccessHandler::totalMe, MemAccessHandler::totalDe;
+std::map<std::pair<UInt,UInt>, long long**> MemAccessHandler::swMap;
+std::list<std::pair<UInt, UInt> > MemAccessHandler::refs;
 
 MemAccessHandler::MemAccessHandler() {
 }
@@ -54,44 +56,32 @@ void MemAccessHandler::openFile(unsigned int view, unsigned int range) {
     }
 	swResolution = (range/16) * 2 + 1;
 
-	totalMe = 0;
-	totalDe = 0;
-	swMe = new long long* [swResolution];
-	swDe = new long long* [swResolution];
-	for (int i = 0; i < swResolution; i++) {
-		swMe[i] = new long long[swResolution];
-		swDe[i] = new long long[swResolution];
-	}
+	swMap.clear();
+	refs.clear();
+	
 
 }
 
-void MemAccessHandler::xReportFinalSearchMap() {
-	for (int y = 0; y < swResolution; y++) {
-		for (int x = 0; x < swResolution; x++) {
-			fprintf(fpSearchMap, "%.3f ", swMe[x][y]/(double)totalMe);
-		}
-		fprintf(fpSearchMap, "\n");
-	}
-	for (int y = 0; y < swResolution; y++) {
-		for (int x = 0; x < swResolution; x++) {
-			if(currView != 0) {
-				fprintf(fpSearchMap, "%.3f ", swDe[x][y]/(double)totalDe);
+void MemAccessHandler::reportSearchOccurrences() {
+	while(!refs.empty()) {
+		std::pair<UInt,UInt> p = refs.front();
+		for (int y = 0; y < swResolution; y++) {
+			for (int x = 0; x < swResolution; x++) {
+				fprintf(fpSearchMap, "%lld ", swMap[p][x][y]);
 			}
-			else {
-				fprintf(fpSearchMap, "0.000 ");
-			}
+			fprintf(fpSearchMap, "\n");
 		}
-		fprintf(fpSearchMap, "\n");
+		refs.pop_front();
 	}
+	swMap.clear();
+	refs.clear();
 }
 
 void MemAccessHandler::closeAndReport() {
     fclose(fp_me);
     fclose(fp_de);
 #if SW_SEARCH_MAP
-    xReportFinalSearchMap();
 	fclose(fpSearchMap);
-	
 #endif
 }
 
@@ -153,21 +143,14 @@ void MemAccessHandler::reportSearchMap() {
     int minX = -offset;
     int minY = -offset;
 
-	totalMe += (currView == refView) ? 1 : 0;
-	totalDe += (currView != refView) ? 1 : 0;
-
     //fprintf(fpSearchMap,"%d %d %d %d %d %d %c %d %d \n",  currView, currPoc, currMbX, currMbY, refView, refPoc, (refView==currView) ? '0' : '1', mvPredictor.first, mvPredictor.second);
     for(int i = minY; i < (minY + 2*offset+1); i++) {
         for(int j = minX; j < (minX + 2*offset+1); j++) {
             std::pair<int,int> p(j, i);
 			/*fprintf(fpSearchMap, "%c ", (acc.find(p)!=acc.end()) ? ((i == 0 and j == 0) ? '*' : '1') :	'0');*/
 			if(acc.find(p)!=acc.end()) {
-				if(currView == refView) { /*Motion Estimation */
-					swMe[i+offset][j+offset] += 1;
-				}
-				else { /*Disparity Estimation */
-					swDe[i+offset][j+offset] += 1;
-				}
+				std::pair<UInt,UInt> ref(refView, refPoc);
+				swMap[ref][j+offset][i+offset] += 1;
 			}
 		}
     }
@@ -295,4 +278,21 @@ void MemAccessHandler::setMvPredictor(int h, int v) {
 
 void MemAccessHandler::setRefPoc(int poc) {
 	refPoc = poc;
+}
+
+void MemAccessHandler::insertRefFrame(UInt view, UInt poc) {
+	std::pair<UInt, UInt> p(view,poc);
+	setRefView(view);
+	setRefPoc(poc);
+
+	long long** sw = new long long* [swResolution];
+	for (int i = 0; i < swResolution; i++) {
+		sw[i] = new long long[swResolution];
+		memset(sw[i], 0, sizeof(long long) * swResolution);
+	}
+
+	
+	
+	refs.push_back(p);
+	swMap[p] = sw;
 }

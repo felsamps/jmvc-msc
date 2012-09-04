@@ -3925,7 +3925,11 @@ MbEncoder::xEstimateMb16x16( IntMbTempData*&  rpcMbTempData,
 		setPDIParameters( rcRefFrameList0, iRefIdxTest, rpcMbTempData, (UInt)LIST_0 );
 //~JVT-W080 BUG_FIX
 
-
+#if SW_SEARCH_MAP
+	if(rpcMbTempData->getMbDataAccess().getMbX() == 0 && rpcMbTempData->getMbDataAccess().getMbY() == 0) {
+		MemAccessHandler::insertRefFrame(pcRefFrame->getViewId(), pcRefFrame->getPOC() );
+	}
+#endif
 
     RNOK( m_pcMotionEstimation->estimateBlockWithStart( *rpcMbTempData, *pcRefFrame,
                                                         cMvLastEst[0][iRefIdxTest],
@@ -3967,10 +3971,12 @@ MbEncoder::xEstimateMb16x16( IntMbTempData*&  rpcMbTempData,
 
 	  
     }
+
+
 #if DEBUGGER_EN
-	Debugger::print("MB (%d,%d) ", rpcMbTempData->getMbDataAccess().getMbX(), rpcMbTempData->getMbDataAccess().getMbY());
-	Debugger::print("(%d %d) ",pcRefFrame->getViewId(), pcRefFrame->getPoc());
-	Debugger::print("Cost: %d, Bits: %d\n", uiCostTest, uiBitsTest);
+	if(rpcMbTempData->getMbDataAccess().getMbX() == 0 && rpcMbTempData->getMbDataAccess().getMbY() == 0) {
+		Debugger::print("(%d %d)\n",pcRefFrame->getViewId(), pcRefFrame->getPoc());
+	}
 #endif
 #if MONITOR_EN
 	//static void insert(UInt poc, UInt xMb, UInt yMb, h264::Mv& vec, UInt frameId, UInt viewId, UInt cost, UInt bits);
@@ -4003,6 +4009,11 @@ MbEncoder::xEstimateMb16x16( IntMbTempData*&  rpcMbTempData,
 //JVT-W080 BUG_FIX
 		setPDIParameters( rcRefFrameList1, iRefIdxTest, rpcMbTempData, (UInt)LIST_1 );
 //~JVT-W080 BUG_FIX
+#if SW_SEARCH_MAP
+	if(rpcMbTempData->getMbDataAccess().getMbX() == 0 && rpcMbTempData->getMbDataAccess().getMbY() == 0) {
+		MemAccessHandler::insertRefFrame(pcRefFrame->getViewId(), pcRefFrame->getPOC() );
+	}
+#endif
 
     RNOK( m_pcMotionEstimation->estimateBlockWithStart(  *rpcMbTempData, *pcRefFrame,
                                                         cMvLastEst[1][iRefIdxTest],
@@ -4047,10 +4058,12 @@ MbEncoder::xEstimateMb16x16( IntMbTempData*&  rpcMbTempData,
                                                           PART_16x16, MODE_16x16 ) );
       }
     }
+
+
 #if DEBUGGER_EN
-	Debugger::print("MB (%d,%d) ", rpcMbTempData->getMbDataAccess().getMbX(), rpcMbTempData->getMbDataAccess().getMbY());
-	Debugger::print("(%d %d) ",pcRefFrame->getViewId(), pcRefFrame->getPoc());
-	Debugger::print("Cost: %d, Bits: %d\n", uiCostTest, uiBitsTest);
+	if(rpcMbTempData->getMbDataAccess().getMbX() == 0 && rpcMbTempData->getMbDataAccess().getMbY() == 0) {
+		Debugger::print("(%d %d)\n",pcRefFrame->getViewId(), pcRefFrame->getPoc());
+	}
 #endif
 	#if MONITOR_EN
 	//static void insert(UInt poc, UInt xMb, UInt yMb, h264::Mv& vec, UInt frameId, UInt viewId, UInt cost, UInt bits);
