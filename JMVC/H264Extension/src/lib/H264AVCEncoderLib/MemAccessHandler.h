@@ -21,11 +21,14 @@ private:
     static int width, height;
     static int refView, currView, currPoc, refPoc;
     static int currMbX, currMbY;
-    static unsigned int searchWindow, searchRange;
+    static unsigned int searchWindow, searchRange, swResolution;
     static int numRefFrames, refsMe, refsDe;
     static long long int bw;
     static std::map<int, int> usage_me, usage_de;
     static std::pair<int,int> mvPredictor;
+    static long long **swMe, **swDe, totalMe, totalDe;
+
+    static void xReportFinalSearchMap();
     
 public:
     
@@ -33,8 +36,8 @@ public:
     MemAccessHandler();
     virtual ~MemAccessHandler();
     
-    static void openFile(unsigned int view);
-    static void closeFile();
+    static void openFile(unsigned int view, unsigned int searchRange);
+    static void closeAndReport();
     static void init();
     static void initBW();
     static void initCurrMB();

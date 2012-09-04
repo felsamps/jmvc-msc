@@ -21,7 +21,7 @@ int MemAccessHandler::refView;
 int MemAccessHandler::currView;
 int MemAccessHandler::height;
 int MemAccessHandler::width;
-unsigned int MemAccessHandler::searchWindow, MemAccessHandler::searchRange;
+unsigned int MemAccessHandler::searchWindow, MemAccessHandler::searchRange, MemAccessHandler::swResolution;
 long long int MemAccessHandler::bw;
 std::map<int,int> MemAccessHandler::usage_me;
 std::map<int,int> MemAccessHandler::usage_de;
@@ -29,6 +29,7 @@ int MemAccessHandler::numRefFrames;
 int MemAccessHandler::refsMe;
 int MemAccessHandler::refsDe;
 std::pair<int,int> MemAccessHandler::mvPredictor;
+long long **MemAccessHandler::swMe, **MemAccessHandler::swDe, MemAccessHandler::totalMe, MemAccessHandler::totalDe;
 
 MemAccessHandler::MemAccessHandler() {
 }
@@ -36,7 +37,7 @@ MemAccessHandler::MemAccessHandler() {
 MemAccessHandler::~MemAccessHandler() {
 }
 
-void MemAccessHandler::openFile(unsigned int view) {
+void MemAccessHandler::openFile(unsigned int view, unsigned int range) {
     if(view == 0) {
         fp_me = fopen("sw_usage_me.mat", "w");
         fp_de = fopen("sw_usage_de.mat", "w");
@@ -50,14 +51,47 @@ void MemAccessHandler::openFile(unsigned int view) {
 #if SW_SEARCH_MAP
         fpSearchMap = fopen("search_map.mat", "a");
 #endif
-    }    
+    }
+	swResolution = (range/16) * 2 + 1;
+
+	totalMe = 0;
+	totalDe = 0;
+	swMe = new long long* [swResolution];
+	swDe = new long long* [swResolution];
+	for (int i = 0; i < swResolution; i++) {
+		swMe[i] = new long long[swResolution];
+		swDe[i] = new long long[swResolution];
+	}
+
 }
 
-void MemAccessHandler::closeFile() {
+void MemAccessHandler::xReportFinalSearchMap() {
+	for (int y = 0; y < swResolution; y++) {
+		for (int x = 0; x < swResolution; x++) {
+			fprintf(fpSearchMap, "%.3f ", swMe[x][y]/(double)totalMe);
+		}
+		fprintf(fpSearchMap, "\n");
+	}
+	for (int y = 0; y < swResolution; y++) {
+		for (int x = 0; x < swResolution; x++) {
+			if(currView != 0) {
+				fprintf(fpSearchMap, "%.3f ", swDe[x][y]/(double)totalDe);
+			}
+			else {
+				fprintf(fpSearchMap, "0.000 ");
+			}
+		}
+		fprintf(fpSearchMap, "\n");
+	}
+}
+
+void MemAccessHandler::closeAndReport() {
     fclose(fp_me);
     fclose(fp_de);
 #if SW_SEARCH_MAP
-    fclose(fpSearchMap);
+    xReportFinalSearchMap();
+	fclose(fpSearchMap);
+	
 #endif
 }
 
@@ -119,13 +153,23 @@ void MemAccessHandler::reportSearchMap() {
     int minX = -offset;
     int minY = -offset;
 
-    fprintf(fpSearchMap,"%d %d %d %d %d %d %c %d %d \n",  currView, currPoc, currMbX, currMbY, refView, refPoc, (refView==currView) ? '0' : '1', mvPredictor.first, mvPredictor.second);
+	totalMe += (currView == refView) ? 1 : 0;
+	totalDe += (currView != refView) ? 1 : 0;
+
+    //fprintf(fpSearchMap,"%d %d %d %d %d %d %c %d %d \n",  currView, currPoc, currMbX, currMbY, refView, refPoc, (refView==currView) ? '0' : '1', mvPredictor.first, mvPredictor.second);
     for(int i = minY; i < (minY + 2*offset+1); i++) {
         for(int j = minX; j < (minX + 2*offset+1); j++) {
             std::pair<int,int> p(j, i);
-			fprintf(fpSearchMap, "%c ", (acc.find(p)!=acc.end()) ? ((i == 0 and j == 0) ? '*' : '1') :	'0');
+			/*fprintf(fpSearchMap, "%c ", (acc.find(p)!=acc.end()) ? ((i == 0 and j == 0) ? '*' : '1') :	'0');*/
+			if(acc.find(p)!=acc.end()) {
+				if(currView == refView) { /*Motion Estimation */
+					swMe[i+offset][j+offset] += 1;
+				}
+				else { /*Disparity Estimation */
+					swDe[i+offset][j+offset] += 1;
+				}
+			}
 		}
-		fprintf(fpSearchMap, "\n");
     }
 }
 

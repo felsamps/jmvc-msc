@@ -103,7 +103,7 @@ H264AVCEncoder::init(
 #endif
   
 #if SW_USAGE_EN
-  MemAccessHandler::openFile(pcCodingParameter->getCurentViewId());
+  MemAccessHandler::openFile(pcCodingParameter->getCurentViewId(), pcCodingParameter->getMotionVectorSearchParams().getSearchRange());
 #endif
 
 #if MONITOR_EN
@@ -146,7 +146,7 @@ H264AVCEncoder::uninit()
 	ReferenceFrameComm::reportAndClose();
 #endif
 #if SW_USAGE_EN
-	MemAccessHandler::closeFile();
+	MemAccessHandler::closeAndReport();
 #endif
 #if MONITOR_EN
 	SearchMonitor::reportAndClose();

@@ -864,7 +864,7 @@ Void MotionEstimation::xPelLogSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt
   const Bool bFirstSearchDiamond      = 1;  /* 1 = xTZ8PointDiamondSearch   0 = xTZ8PointSquareSearch */        \
   const Bool bFirstSearchStop         = 0;                                                                      \
   const UInt uiFirstSearchRounds      = 3;  /* first search stop X rounds after best match (must be >=1) */     \
-  const Bool bEnableRasterSearch      = 0;                                                                      \
+  const Bool bEnableRasterSearch      = 1;                                                                      \
   const Bool bAlwaysRasterSearch      = 0;  /* ===== 1: BETTER but factor 2 slower ===== */                     \
   const Bool bRasterRefinementEnable  = 0;  /* enable either raster refinement or star refinement */            \
   const Bool bRasterRefinementDiamond = 0;  /* 1 = xTZ8PointDiamondSearch   0 = xTZ8PointSquareSearch */        \
