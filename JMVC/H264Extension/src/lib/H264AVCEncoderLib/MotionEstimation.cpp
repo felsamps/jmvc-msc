@@ -9,6 +9,8 @@
 #include "H264AVCCommonLib/Transform.h"
 #include "MemAccessHandler.h"
 #include "TestDefinitions.h"
+#include "../H264AVCCommonLib/Debugger.h"
+#include "SearchMonitor.h"
 
 H264AVC_NAMESPACE_BEGIN
 
@@ -177,6 +179,9 @@ MotionEstimation::estimateBlockWithStart( const MbDataAccess&  rcMbDataAccess,
   const Int iXSize                       = m_pcXDistortion->getBlockWidth  ( uiMode ); 
   const Int iYSize                       = m_pcXDistortion->getBlockHeight ( uiMode ); 
 
+  //FELIPE
+  Mv temp;
+
   if( pcBSP ) // bi prediction
   {
     ROF( pcBSP->pcAltRefPelData    );
@@ -290,7 +295,7 @@ MotionEstimation::estimateBlockWithStart( const MbDataAccess&  rcMbDataAccess,
   #endif
 
 #if DEBUGGER_EN
-  Debugger::print("%d %d\n", rcRefFrame.getViewId(), rcRefFrame.getPOC())
+  Debugger::print("%d %d\n", rcRefFrame.getViewId(), rcRefFrame.getPOC());
 #endif
 
   if( ! bQPelRefinementOnly )
@@ -336,6 +341,7 @@ MotionEstimation::estimateBlockWithStart( const MbDataAccess&  rcMbDataAccess,
         break;
       }
     }
+	temp.set(cMv.getHor(), cMv.getVer());
     cMv <<= 2;
   }
   else
@@ -385,6 +391,20 @@ MotionEstimation::estimateBlockWithStart( const MbDataAccess&  rcMbDataAccess,
   ruiBits        += uiMvBits;
   ruiCost         = (UInt)floor( fWeight * (Double)( uiMinSAD - xGetCost( uiMvBits ) ) ) + xGetCost( ruiBits );
   rcMv            = cMv;
+
+#if MONITOR_EN
+	//static void insert(UInt poc, UInt xMb, UInt yMb, h264::Mv& vec, UInt frameId, UInt viewId, UInt cost, UInt bits);
+	SearchMonitor::insert(
+			rcMbDataAccess.getSH().getPoc(),
+			rcMbDataAccess.getMbX(),
+			rcMbDataAccess.getMbY(),
+			temp,
+			rcRefFrame.getPoc(),
+			rcRefFrame.getViewId(),
+			ruiCost,
+			ruiBits
+	);
+#endif
 
   return Err::m_nOK;
 }
@@ -1270,17 +1290,27 @@ Void MotionEstimation::xTZSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt& ru
   // limit search range
   if( ! uiSearchRange ) { uiSearchRange = m_cParams.getSearchRange(); }
   
-  //FELIPE
-
+  
   
   rcMv.limitComponents(MotionCompensation::m_cMin, MotionCompensation::m_cMax );
   SearchRect cSearchRect;
   rcMv >>= 2;
+
+  //FELIPE
+
+#if MONITOR_EN
+  Mv zeroMv(0,0);
+  cSearchRect.init( uiSearchRange, zeroMv, MotionCompensation::m_cMin, MotionCompensation::m_cMax );
+#else
   cSearchRect.init( uiSearchRange, rcMv, MotionCompensation::m_cMin, MotionCompensation::m_cMax );
+#endif
+
 
 #if SW_USAGE_EN
   MemAccessHandler::setSearchRange(uiSearchRange);
 #endif
+
+
 
   // init TZSearchStrukt
   IntTZSearchStrukt cStrukt;
@@ -1295,7 +1325,7 @@ Void MotionEstimation::xTZSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt& ru
 
 
   // set rcMv as start point and as best point
-  xTZSearchHelp( cStrukt, rcMv.getHor(), rcMv.getVer(), 0, 0 );
+  //xTZSearchHelp( cStrukt, rcMv.getHor(), rcMv.getVer(), 0, 0 );
 
 
   if( bTestOtherPredictedMV )
@@ -1319,7 +1349,10 @@ Void MotionEstimation::xTZSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt& ru
   Int  iDist       = 0;               //   1 2 3
   Int  iStartX     = cStrukt.iBestX;  //   4 0 5
   Int  iStartY     = cStrukt.iBestY;  //   6 7 8
-  
+
+#if DEBUGGER_EN
+  Debugger::print("(%d,%d) %d %d %d %d\n", iStartX, iStartY, cSearchRect.iNegHorLimit, cSearchRect.iPosHorLimit, cSearchRect.iNegVerLimit, cSearchRect.iPosVerLimit);
+#endif
 #if SW_USAGE_EN
   MemAccessHandler::setMvPredictor(cStrukt.iBestX, cStrukt.iBestY);
 #endif
@@ -1450,6 +1483,7 @@ Void MotionEstimation::xTZSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt& ru
   ruiSAD = cStrukt.uiBestSad - MotionEstimationCost::xGetCost( cStrukt.iBestX, cStrukt.iBestY);
   rcMv.setHor( cStrukt.iBestX );
   rcMv.setVer( cStrukt.iBestY );
+
 
   // test for errors in debug mode
   DO_DBG( m_cXDSS.pYSearch = cStrukt.pucYRef +  cStrukt.iBestY     * cStrukt.iYStride +  cStrukt.iBestX );

@@ -290,9 +290,6 @@ void MemAccessHandler::insertRefFrame(UInt view, UInt poc) {
 		sw[i] = new long long[swResolution];
 		memset(sw[i], 0, sizeof(long long) * swResolution);
 	}
-
-	
-	
 	refs.push_back(p);
 	swMap[p] = sw;
 }
