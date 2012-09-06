@@ -406,6 +406,8 @@ MotionEstimation::estimateBlockWithStart( const MbDataAccess&  rcMbDataAccess,
 	);
 #endif
 
+	
+
   return Err::m_nOK;
 }
 

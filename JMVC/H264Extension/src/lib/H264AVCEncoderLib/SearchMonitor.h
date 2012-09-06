@@ -8,12 +8,14 @@
 
 struct BestMatch {
     std::map<Int, h264::Mv*> mvList;
+    std::map<Int, UInt> costList;
     UInt refFrameId, refViewId;
     UInt bestCost, bestBits;
     Int bestRef;
     
     BestMatch() {
         bestRef = 0;
+        costList.clear();
         mvList.clear();
         refFrameId = -1;
         refViewId = -1;
@@ -24,6 +26,7 @@ struct BestMatch {
     void set(h264::Mv& vec, UInt frameId, UInt viewId, Int refId, UInt cost, UInt bits) {
         h264::Mv *mv = new h264::Mv(vec.getVer(), vec.getHor());
         mvList[refId] = mv;
+        costList[refId] = cost;
         if((cost + bits) < (bestCost + bestBits)) {
             refFrameId = frameId;
             refViewId = viewId;
@@ -40,6 +43,7 @@ private:
     static FILE *file, *fileByFrame;
     static FILE *fileMvMe, *fileMvDe;
     static FILE *fileMvdMe, *fileMvdDe;
+    static FILE *fileCostMe, *fileCostDe;
     static BestMatch**** video;
     static UInt w, h, nFrames, currViewId;
     static std::vector<std::map<std::pair<UInt,UInt>, Int> > refFrames;

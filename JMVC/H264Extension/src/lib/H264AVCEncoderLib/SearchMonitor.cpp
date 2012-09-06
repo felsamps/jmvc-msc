@@ -7,6 +7,7 @@
 FILE *SearchMonitor::file, *SearchMonitor::fileByFrame;
 FILE *SearchMonitor::fileMvMe, *SearchMonitor::fileMvDe;
 FILE *SearchMonitor::fileMvdMe, *SearchMonitor::fileMvdDe;
+FILE *SearchMonitor::fileCostDe, *SearchMonitor::fileCostMe;
 
 BestMatch ****SearchMonitor::video;
 UInt SearchMonitor::w, SearchMonitor::h, SearchMonitor::nFrames, SearchMonitor::currViewId;
@@ -27,7 +28,9 @@ void SearchMonitor::init(UInt view, UInt width, UInt height, UInt numFrames) {
 		fileMvDe = fopen("mv_tracing_de.mat", "w");
 		fileMvdMe = fopen("mvd_me.mat", "w");
 		fileMvdDe = fopen("mvd_de.mat", "w");
-		
+		fileCostMe = fopen("cost_me.mat", "w");
+		fileCostDe = fopen("cost_de.mat", "w");
+
 #endif
 	}
 	else {
@@ -40,6 +43,8 @@ void SearchMonitor::init(UInt view, UInt width, UInt height, UInt numFrames) {
 		fileMvDe = fopen("mv_tracing_de.mat", "a");
 		fileMvdMe = fopen("mvd_me.mat", "a");
 		fileMvdDe = fopen("mvd_de.mat", "a");
+		fileCostMe = fopen("cost_me.mat", "a");
+		fileCostDe = fopen("cost_de.mat", "a");
 #endif
 	}
 
@@ -174,7 +179,7 @@ h264::Mv* SearchMonitor::xCalcMvd(UInt f, UInt x, UInt y, Int idx) {
 }
 
 void SearchMonitor::xReportMvTracing() {
-	std::string reportMv, reportMvd;
+	std::string reportMv, reportMvd, reportCost;
 	char temp[15];
 	for (int f = 0; f < nFrames; f++) {
 		std::map<std::pair<UInt,UInt>, Int> refs = refFrames[f];
@@ -191,19 +196,26 @@ void SearchMonitor::xReportMvTracing() {
 					h264::Mv *mvd = xCalcMvd(f, x, y, idx);
 					sprintf(temp, "%d %d\n", mvd->getHor(), mvd->getVer());
 					reportMvd += temp;
+					/* Cost Printing */
+					UInt cost = video[f][x][y]->costList[idx];
+					sprintf(temp, "%d\n", cost);
+					reportCost += temp;
 				}
 			}
 			
 			if(currViewId == p.first) { //Motion Estimation
 				fprintf(fileMvMe, "%s", reportMv.c_str());
 				fprintf(fileMvdMe, "%s", reportMvd.c_str());
+				fprintf(fileCostMe, "%s", reportCost.c_str());
 			}
 			else { //Disparity Estimation
 				fprintf(fileMvDe, "%s", reportMv.c_str());
 				fprintf(fileMvdDe, "%s", reportMvd.c_str());
+				fprintf(fileCostDe, "%s", reportCost.c_str());
 			}
 			reportMv.clear();
 			reportMvd.clear();
+			reportCost.clear();
 		}		
 	}
 }
@@ -215,6 +227,8 @@ void SearchMonitor::reportAndClose() {
 	fclose(fileMvDe);
 	fclose(fileMvdMe);
 	fclose(fileMvdDe);
+	fclose(fileCostMe);
+	fclose(fileCostDe);
 #endif
 #if REF_DIRECTION_EN
 	xReportRefFrame();
