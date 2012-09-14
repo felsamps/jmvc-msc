@@ -3974,9 +3974,9 @@ MbEncoder::xEstimateMb16x16( IntMbTempData*&  rpcMbTempData,
 
 
 #if DEBUGGER_EN
-	if(rpcMbTempData->getMbDataAccess().getMbX() == 0 && rpcMbTempData->getMbDataAccess().getMbY() == 0) {
+	/*if(rpcMbTempData->getMbDataAccess().getMbX() == 0 && rpcMbTempData->getMbDataAccess().getMbY() == 0) {
 		Debugger::print("(%d %d)\n",pcRefFrame->getViewId(), pcRefFrame->getPoc());
-	}
+	}*/
 #endif
 			
   }
@@ -4048,9 +4048,9 @@ MbEncoder::xEstimateMb16x16( IntMbTempData*&  rpcMbTempData,
 
 
 #if DEBUGGER_EN
-	if(rpcMbTempData->getMbDataAccess().getMbX() == 0 && rpcMbTempData->getMbDataAccess().getMbY() == 0) {
+	/*if(rpcMbTempData->getMbDataAccess().getMbX() == 0 && rpcMbTempData->getMbDataAccess().getMbY() == 0) {
 		Debugger::print("(%d %d)\n",pcRefFrame->getViewId(), pcRefFrame->getPoc());
-	}
+	}*/
 #endif
 
   }

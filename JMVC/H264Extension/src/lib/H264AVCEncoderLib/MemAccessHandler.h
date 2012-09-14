@@ -14,7 +14,8 @@ class MemAccessHandler {
 private:
     static FILE* fp_me;
     static FILE* fp_de;
-    static FILE* fpSearchMap;
+    static FILE* fpMeSearchMap;
+    static FILE* fpDeSearchMap;
     static std::set<std::pair<int,int> > acc;
     static std::set<int> block_acc;
     static int counter;
@@ -27,6 +28,7 @@ private:
     static long long int bw;
     static std::map<int, int> usage_me, usage_de;
     static std::pair<int,int> mvPredictor;
+    static bool firstSearchTZ;
 
     static std::map<std::pair<UInt,UInt>, long long**> swMap;
     static std::list<std::pair<UInt, UInt> > refs;
@@ -61,6 +63,8 @@ public:
     static void setSearchRange(unsigned int range);
     static void setNumRefFrames(int num);
     static void setMvPredictor(int h, int v);
+    static void setFirstSearchTZ(bool b);
+    static bool isFirstSearchTZ();
 
     static void insertRefFrame(UInt view, UInt poc);
 };

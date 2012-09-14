@@ -9,7 +9,8 @@
 
 FILE* MemAccessHandler::fp_me;
 FILE* MemAccessHandler::fp_de;
-FILE* MemAccessHandler::fpSearchMap;
+FILE* MemAccessHandler::fpMeSearchMap;
+FILE* MemAccessHandler::fpDeSearchMap;
 std::set<std::pair<int,int> > MemAccessHandler::acc;
 std::set<int> MemAccessHandler::block_acc;
 int MemAccessHandler::counter;
@@ -32,6 +33,7 @@ int MemAccessHandler::refsDe;
 std::pair<int,int> MemAccessHandler::mvPredictor;
 std::map<std::pair<UInt,UInt>, long long**> MemAccessHandler::swMap;
 std::list<std::pair<UInt, UInt> > MemAccessHandler::refs;
+bool MemAccessHandler::firstSearchTZ;
 
 MemAccessHandler::MemAccessHandler() {
 }
@@ -44,18 +46,20 @@ void MemAccessHandler::openFile(unsigned int view, unsigned int range) {
         fp_me = fopen("sw_usage_me.mat", "w");
         fp_de = fopen("sw_usage_de.mat", "w");
 #if SW_SEARCH_MAP
-        fpSearchMap = fopen("search_map.mat", "w");
+        fpMeSearchMap = fopen("search_map_me.mat", "w");
+		fpDeSearchMap = fopen("search_map_de.mat", "w");
 #endif
     }
     else {
         fp_me = fopen("sw_usage_me.mat", "a");
 		fp_de = fopen("sw_usage_de.mat", "a");
 #if SW_SEARCH_MAP
-        fpSearchMap = fopen("search_map.mat", "a");
+        fpMeSearchMap = fopen("search_map_me.mat", "a");
+		fpDeSearchMap = fopen("search_map_de.mat", "a");
 #endif
     }
 	swResolution = (range/16) * 2 + 1;
-
+	firstSearchTZ = false;
 	swMap.clear();
 	refs.clear();
 	
@@ -63,13 +67,19 @@ void MemAccessHandler::openFile(unsigned int view, unsigned int range) {
 }
 
 void MemAccessHandler::reportSearchOccurrences() {
+	
 	while(!refs.empty()) {
 		std::pair<UInt,UInt> p = refs.front();
+		FILE* targetFile = (p.first == currView) ? 
+			fpMeSearchMap : /*Motion Estimation*/
+			fpDeSearchMap ;
+
+
 		for (int y = 0; y < swResolution; y++) {
 			for (int x = 0; x < swResolution; x++) {
-				fprintf(fpSearchMap, "%lld ", swMap[p][x][y]);
+				fprintf(targetFile, "%lld ", swMap[p][x][y]);
 			}
-			fprintf(fpSearchMap, "\n");
+			fprintf(targetFile, "\n");
 		}
 		refs.pop_front();
 	}
@@ -81,7 +91,8 @@ void MemAccessHandler::closeAndReport() {
     fclose(fp_me);
     fclose(fp_de);
 #if SW_SEARCH_MAP
-	fclose(fpSearchMap);
+	fclose(fpMeSearchMap);
+	fclose(fpDeSearchMap);
 #endif
 }
 
@@ -292,4 +303,12 @@ void MemAccessHandler::insertRefFrame(UInt view, UInt poc) {
 	}
 	refs.push_back(p);
 	swMap[p] = sw;
+}
+
+void MemAccessHandler::setFirstSearchTZ(bool b) {
+	firstSearchTZ = b;
+}
+
+bool MemAccessHandler::isFirstSearchTZ() {
+	return firstSearchTZ;
 }

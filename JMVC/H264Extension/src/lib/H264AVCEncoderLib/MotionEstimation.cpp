@@ -295,7 +295,15 @@ MotionEstimation::estimateBlockWithStart( const MbDataAccess&  rcMbDataAccess,
   #endif
 
 #if DEBUGGER_EN
-  Debugger::print("%d %d\n", rcRefFrame.getViewId(), rcRefFrame.getPOC());
+  if(!pcBSP) {
+	  Debugger::print("b %d %d %d %d %d %d\n",
+			  rcMbDataAccess.getMbX(),
+			  rcMbDataAccess.getMbY(),
+			  rcMbDataAccess.getSH().getViewId(),
+			  rcMbDataAccess.getSH().getPoc(),
+			  rcRefFrame.getViewId(),
+			  rcRefFrame.getPOC());
+  }
 #endif
 
   if( ! bQPelRefinementOnly )
@@ -883,7 +891,7 @@ Void MotionEstimation::xPelLogSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt
 
 #define TZ_SEARCH_CONFIGURATION                                                                                 \
   const Int  iRaster                  = 3;  /* TZ soll von aussen �bergeben werden */                           \
-  const Bool bTestOtherPredictedMV    = 1;                                                                      \
+  const Bool bTestOtherPredictedMV    = 0;                                                                      \
   const Bool bTestZeroVector          = 1;                                                                      \
   const Bool bTestZeroVectorStar      = 0;                                                                      \
   const Bool bTestZeroVectorStop      = 0;                                                                      \
@@ -925,6 +933,14 @@ Void MotionEstimation::xTZSearchHelp( IntTZSearchStrukt& rcStrukt, const Int iSe
   //FELIPE
 #if SW_USAGE_EN
   MemAccessHandler::insertBlock(iSearchX, iSearchY, 16);
+#endif
+
+#if SW_USAGE_EN
+  if(!MemAccessHandler::isFirstSearchTZ()) {
+#if DEBUGGER_EN
+	Debugger::print("c %d %d\n", iSearchX, iSearchY);
+#endif
+  }
 #endif
   
   if( rcStrukt.uiBestSad > uiSad )
@@ -1353,10 +1369,14 @@ Void MotionEstimation::xTZSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt& ru
   Int  iStartY     = cStrukt.iBestY;  //   6 7 8
 
 #if DEBUGGER_EN
-  Debugger::print("(%d,%d) %d %d %d %d\n", iStartX, iStartY, cSearchRect.iNegHorLimit, cSearchRect.iPosHorLimit, cSearchRect.iNegVerLimit, cSearchRect.iPosVerLimit);
+  //Debugger::print("(%d,%d) %d %d %d %d\n", iStartX, iStartY, cSearchRect.iNegHorLimit, cSearchRect.iPosHorLimit, cSearchRect.iNegVerLimit, cSearchRect.iPosVerLimit);
 #endif
 #if SW_USAGE_EN
   MemAccessHandler::setMvPredictor(cStrukt.iBestX, cStrukt.iBestY);
+#endif
+
+#if SW_USAGE_EN
+  MemAccessHandler::setFirstSearchTZ(true);
 #endif
 
   // fist search
@@ -1375,6 +1395,14 @@ Void MotionEstimation::xTZSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt& ru
       break;
     }
   }
+
+#if DEBUGGER_EN
+  Debugger::print("f\n");
+#endif
+
+#if SW_USAGE_EN
+  MemAccessHandler::setFirstSearchTZ(false);
+#endif
 
   // test whether zerovektor is a better start point than current rcMv
   if( bTestZeroVectorStar && ((cStrukt.iBestX != 0) || (cStrukt.iBestY != 0)) )
@@ -1401,9 +1429,15 @@ Void MotionEstimation::xTZSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt& ru
     xTZ2PointSearch( cStrukt, cSearchRect );
   }
 
+#if SW_USAGE_EN
+  MemAccessHandler::setFirstSearchTZ(true);
+#endif
   // raster search if distance is to big
   if( bEnableRasterSearch && ( (cStrukt.uiBestDistance > iRaster) || bAlwaysRasterSearch ) )
   {
+#if DEBUGGER_EN
+  Debugger::print("r %d %d %d %d\n", -cSearchRect.iNegVerLimit, cSearchRect.iPosVerLimit, -cSearchRect.iNegHorLimit, cSearchRect.iPosHorLimit);
+#endif
     cStrukt.uiBestDistance = iRaster;
     for( iStartY = -cSearchRect.iNegVerLimit; iStartY <= cSearchRect.iPosVerLimit; iStartY += iRaster )
     {
@@ -1414,9 +1448,14 @@ Void MotionEstimation::xTZSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt& ru
     }
   }
 
+#if SW_USAGE_EN
+  MemAccessHandler::setFirstSearchTZ(false);
+#endif
+
   // raster refinement
   if( bRasterRefinementEnable && cStrukt.uiBestDistance > 0 )
   {
+
     while( cStrukt.uiBestDistance > 0 )
     {
       iStartX = cStrukt.iBestX;
@@ -1480,6 +1519,11 @@ Void MotionEstimation::xTZSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt& ru
       }
     }
   }
+
+#if DEBUGGER_EN
+  Debugger::print("e\n");
+#endif
+
 
   // write out best match
   ruiSAD = cStrukt.uiBestSad - MotionEstimationCost::xGetCost( cStrukt.iBestX, cStrukt.iBestY);
