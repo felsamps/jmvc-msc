@@ -15,6 +15,7 @@
 
 #include "../H264AVCCommonLib/Debugger.h"
 #include "SearchMonitor.h"
+#include "RFIntraEncoder.h"
 
 
 H264AVC_NAMESPACE_BEGIN
@@ -490,6 +491,10 @@ MbEncoder::encodeMacroblock( MbDataAccess&  rcMbDataAccess,
   
   MemAccessHandler::setNumRefFrames(rcList0.getActive() + rcList1.getActive());
 #endif
+
+  #if RF_INTRA_EN
+  RFIntraEncoder::initMb();
+  #endif
   
   if( rcMbDataAccess.getSH().isInterP() || rcMbDataAccess.getSH().isInterB() )
   {
@@ -506,8 +511,12 @@ MbEncoder::encodeMacroblock( MbDataAccess&  rcMbDataAccess,
   RNOK(   xEstimateMbIntra16  ( m_pcIntMbTempData,  m_pcIntMbBestData,  rcMbDataAccess.getSH().isInterB() ) );
   RNOK(   xEstimateMbIntra8   ( m_pcIntMbTempData,  m_pcIntMbBestData,  rcMbDataAccess.getSH().isInterB() ) );
   RNOK(   xEstimateMbIntra4   ( m_pcIntMbTempData,  m_pcIntMbBestData,  rcMbDataAccess.getSH().isInterB() ) );
+
   RNOK(   xEstimateMbPCM      ( m_pcIntMbTempData,  m_pcIntMbBestData,  rcMbDataAccess.getSH().isInterB() ) );
 
+  #if RF_INTRA_EN
+  RFIntraEncoder::report();
+  #endif
 
   //===== fix estimation =====
   RNOK( m_pcRateDistortionIf->fixMacroblockQP( *m_pcIntMbBestData ) );
@@ -1273,6 +1282,18 @@ MbEncoder::xEstimateMbIntra16( IntMbTempData*&  rpcMbTempData,
       uiBestBits = uiBits;
     }
   }
+
+  #if DEBUGGER_EN
+  Debugger::print("%d %d %d\n", 
+		  rpcMbTempData->getMbDataAccess().getMbX(),
+		  rpcMbTempData->getMbDataAccess().getMbY(),
+		  uiPredMode
+		  );
+  #endif
+
+  #if RF_INTRA_EN
+  RFIntraEncoder::insertI16Mode(uiPredMode, uiBestRd);
+  #endif
   
   Bool  bValid  = true;
   UInt  uiDcAbs = 0;
@@ -1355,6 +1376,10 @@ MbEncoder::xEstimateMbIntra4( IntMbTempData*&  rpcMbTempData,
       uiMbBits += uiBits-4;
     }
   }
+  #if DEBUGGER_EN
+  Debugger::print("\n");
+  #endif
+
 
   XPel*         pPel    = rpcMbTempData->getMbLumAddr();
   Int           iStride = rpcMbTempData->getLStride();
@@ -1886,6 +1911,13 @@ MbEncoder::xEncode4x4IntraBlock( IntMbTempData& rcMbTempData,
     }
   }
 
+  #if DEBUGGER_EN
+  Debugger::print("%d ", uiBestMode);
+  #endif
+
+  #if RF_INTRA_EN
+  RFIntraEncoder::insertI4Mode(uiBestMode, fBestRd);
+  #endif
 
   RNOK( m_pcIntraPrediction->predictSLumaBlock( rcMbTempData, uiBestMode, cIdx, bValid ) );
   rcMbTempData.intraPredMode( cIdx ) = uiBestMode;

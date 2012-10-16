@@ -61,6 +61,7 @@ OBJS          	= \
 			$(OBJ_DIR)/ReferenceFrameComm.o \
 			$(OBJ_DIR)/MemAccessHandler.o \
 			$(OBJ_DIR)/SearchMonitor.o \
+			$(OBJ_DIR)/RFIntraEncoder.o \
 
 
 LIBS				= -lpthread

@@ -295,7 +295,7 @@ MotionEstimation::estimateBlockWithStart( const MbDataAccess&  rcMbDataAccess,
   #endif
 
 #if DEBUGGER_EN
-  if(!pcBSP) {
+  /*if(!pcBSP) {
 	  Debugger::print("b %d %d %d %d %d %d\n",
 			  rcMbDataAccess.getMbX(),
 			  rcMbDataAccess.getMbY(),
@@ -303,7 +303,7 @@ MotionEstimation::estimateBlockWithStart( const MbDataAccess&  rcMbDataAccess,
 			  rcMbDataAccess.getSH().getPoc(),
 			  rcRefFrame.getViewId(),
 			  rcRefFrame.getPOC());
-  }
+  }*/
 #endif
 
   if( ! bQPelRefinementOnly )
@@ -1397,7 +1397,7 @@ Void MotionEstimation::xTZSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt& ru
   }
 
 #if DEBUGGER_EN
-  Debugger::print("f\n");
+  //Debugger::print("f\n");
 #endif
 
 #if SW_USAGE_EN
@@ -1436,7 +1436,7 @@ Void MotionEstimation::xTZSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt& ru
   if( bEnableRasterSearch && ( (cStrukt.uiBestDistance > iRaster) || bAlwaysRasterSearch ) )
   {
 #if DEBUGGER_EN
-  Debugger::print("r %d %d %d %d\n", -cSearchRect.iNegVerLimit, cSearchRect.iPosVerLimit, -cSearchRect.iNegHorLimit, cSearchRect.iPosHorLimit);
+  //Debugger::print("r %d %d %d %d\n", -cSearchRect.iNegVerLimit, cSearchRect.iPosVerLimit, -cSearchRect.iNegHorLimit, cSearchRect.iPosHorLimit);
 #endif
     cStrukt.uiBestDistance = iRaster;
     for( iStartY = -cSearchRect.iNegVerLimit; iStartY <= cSearchRect.iPosVerLimit; iStartY += iRaster )
@@ -1521,7 +1521,7 @@ Void MotionEstimation::xTZSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt& ru
   }
 
 #if DEBUGGER_EN
-  Debugger::print("e\n");
+  //Debugger::print("e\n");
 #endif
 
 

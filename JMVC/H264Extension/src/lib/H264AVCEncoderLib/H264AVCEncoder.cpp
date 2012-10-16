@@ -12,6 +12,7 @@
 #include "MemAccessHandler.h"
 #include "TestDefinitions.h"
 #include "SearchMonitor.h"
+#include "RFIntraEncoder.h"
 
 #include <math.h>
 
@@ -108,6 +109,10 @@ H264AVCEncoder::init(
 
 #if MONITOR_EN
   SearchMonitor::init(pcCodingParameter->getCurentViewId(), pcCodingParameter->getFrameWidth(), pcCodingParameter->getFrameHeight(), pcCodingParameter->getTotalFrames());
+#endif
+
+#if RF_INTRA_EN
+  RFIntraEncoder::init("intra_trace.mat", pcCodingParameter->getCurentViewId());
 #endif
 
   return Err::m_nOK;
