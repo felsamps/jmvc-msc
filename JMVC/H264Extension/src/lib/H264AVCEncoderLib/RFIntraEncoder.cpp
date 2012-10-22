@@ -24,6 +24,7 @@ void RFIntraEncoder::init(std::string name, UInt view) {
 void RFIntraEncoder::initMb() {
 	i4Modes.clear();
 	i4Cost = 0;
+	i16Cost = 0x7FFFFFFF;
 }
 
 void RFIntraEncoder::insertI4Mode(Int predMode, UInt cost) {
