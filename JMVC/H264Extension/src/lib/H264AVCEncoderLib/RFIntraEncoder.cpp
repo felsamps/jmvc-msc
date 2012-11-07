@@ -42,16 +42,15 @@ bool RFIntraEncoder::isI4Mode() { /* false: 16x16, true: 4x4 */
 }
 
 void RFIntraEncoder::report() {
-	if(RFIntraEncoder::isI4Mode()) {
-		fprintf(traceFile,"S ");
-		for (int i = 0; i < 16; i++) {
-			fprintf(traceFile,"%d ", i4Modes[i]);
-		}
-		fprintf(traceFile,"\n");
+	
+	fprintf(traceFile,"S %d ", i4Cost);
+	for (int i = 0; i < 16; i++) {
+		fprintf(traceFile,"%d ", i4Modes[i]);
 	}
-	else {
-		fprintf(traceFile,"B %d\n", i16Mode);
-	}
+	fprintf(traceFile,"\n");
+	
+	fprintf(traceFile,"B %d %d\n", i16Cost, i16Mode);
+	
 }
 
 void RFIntraEncoder::close() {

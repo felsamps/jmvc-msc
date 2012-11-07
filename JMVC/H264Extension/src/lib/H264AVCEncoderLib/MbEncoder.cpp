@@ -1292,7 +1292,7 @@ MbEncoder::xEstimateMbIntra16( IntMbTempData*&  rpcMbTempData,
   #endif
 
   #if RF_INTRA_EN
-  //RFIntraEncoder::insertI16Mode(uiPredMode, uiBestRd);
+  RFIntraEncoder::insertI16Mode(uiPredMode, uiBestRd);
   #endif
   
   Bool  bValid  = true;
