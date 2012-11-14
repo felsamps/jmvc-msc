@@ -1,3 +1,5 @@
+#include <cstdio>
+
 #include "H264AVCEncoderLib.h"
 #include "IntraPredictionSearch.h"
 

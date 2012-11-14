@@ -15,6 +15,7 @@
 #include "MemAccessHandler.h"
 #include "TestDefinitions.h"
 #include "SearchMonitor.h"
+#include "RFIntraEncoder.h"
 
 H264AVC_NAMESPACE_BEGIN
 
@@ -245,6 +246,10 @@ SliceEncoder::encodeSlice( SliceHeader&  rcSliceHeader,
     MemAccessHandler::report();
 	MemAccessHandler::reportSearchOccurrences();
 #endif
+
+	#if RF_INTRA_EN
+	//RFIntraEncoder::reportI4Costs();
+	#endif
     
   
 

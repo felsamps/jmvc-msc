@@ -112,7 +112,7 @@ H264AVCEncoder::init(
 #endif
 
 #if RF_INTRA_EN
-  RFIntraEncoder::init("intra_trace.mat", pcCodingParameter->getCurentViewId());
+  RFIntraEncoder::init("intra_trace.mat", pcCodingParameter->getCurentViewId(), pcCodingParameter->getFrameWidth(), pcCodingParameter->getFrameHeight());
 #endif
 
   return Err::m_nOK;

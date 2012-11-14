@@ -1,3 +1,5 @@
+#include <cstdio>
+
 #include "H264AVCCommonLib.h"
 #include "H264AVCCommonLib/IntraPrediction.h"
 
@@ -998,7 +1000,7 @@ Void IntraPrediction::xPredMode2Dc( XPel* puc, Int iStride ) // DC Prediction
 
 
 
-Void IntraPrediction::xPredMode3DiagDownLeft( XPel* puc, Int iStride ) // Diagonal Down Left Pred
+void IntraPrediction::xPredMode3DiagDownLeft( XPel* puc, Int iStride ) // Diagonal Down Left Pred
 {
   AOF( xIsAboveRef() );
   UInt A,B,C,D;
@@ -1014,6 +1016,7 @@ Void IntraPrediction::xPredMode3DiagDownLeft( XPel* puc, Int iStride ) // Diagon
            puc[iStride+3] = puc[2*iStride+2] = puc[3*iStride+1]  = (E + 2*F + G + 2) >> 2;
                             puc[2*iStride+3] = puc[3*iStride+2]  = (F + 2*G + H + 2) >> 2;
                                                puc[3*iStride+3]  = (G + 2*H + H + 2) >> 2;
+
 }
 
 

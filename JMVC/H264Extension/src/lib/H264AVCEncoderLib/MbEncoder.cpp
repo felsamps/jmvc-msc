@@ -1364,7 +1364,7 @@ MbEncoder::xEstimateMbIntra4( IntMbTempData*&  rpcMbTempData,
     for( S4x4Idx cIdx( c8x8Idx ); cIdx.isLegal( c8x8Idx ); cIdx++ )
     {
       RNOK( xEncode4x4IntraBlock( *rpcMbTempData, cIdx, uiBits, uiCbp ) );
-    }
+	}
 
     if( uiCbp != 0 )
     {
@@ -1916,7 +1916,7 @@ MbEncoder::xEncode4x4IntraBlock( IntMbTempData& rcMbTempData,
   #endif
 
   #if RF_INTRA_EN
-  RFIntraEncoder::insertI4Mode(uiBestMode, fBestRd);
+  RFIntraEncoder::insertI4Mode(uiBestMode, fBestRd, rcMbTempData.getMbDataAccess().getMbX(), rcMbTempData.getMbDataAccess().getMbY(), cIdx);
   #endif
 
   RNOK( m_pcIntraPrediction->predictSLumaBlock( rcMbTempData, uiBestMode, cIdx, bValid ) );
