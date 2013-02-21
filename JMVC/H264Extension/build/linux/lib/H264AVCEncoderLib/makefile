@@ -62,7 +62,7 @@ OBJS          	= \
 			$(OBJ_DIR)/MemAccessHandler.o \
 			$(OBJ_DIR)/SearchMonitor.o \
 			$(OBJ_DIR)/RFIntraEncoder.o \
-
+			$(OBJ_DIR)/RFIntraCompressor.o \
 
 LIBS				= -lpthread
 

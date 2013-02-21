@@ -224,7 +224,10 @@ SliceEncoder::encodeSlice( SliceHeader&  rcSliceHeader,
 //~JVT-W080
 
     
-           
+#if DEBUGGER_EN        
+    Debugger::print("MB %d %d\n", pcMbDataAccess->getMbX(), pcMbDataAccess->getMbY());
+#endif
+        
     Double cost;
     RNOK( m_pcMbEncoder ->encodeMacroblock( *pcMbDataAccess,
                                              pcFrame,

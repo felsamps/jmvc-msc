@@ -1284,11 +1284,11 @@ MbEncoder::xEstimateMbIntra16( IntMbTempData*&  rpcMbTempData,
   }
 
   #if DEBUGGER_EN
-  Debugger::print("%d %d %d\n", 
-		  rpcMbTempData->getMbDataAccess().getMbX(),
-		  rpcMbTempData->getMbDataAccess().getMbY(),
-		  uiPredMode
-		  );
+  //Debugger::print("%d %d %d\n", 
+//		  rpcMbTempData->getMbDataAccess().getMbX(),
+//		  rpcMbTempData->getMbDataAccess().getMbY(),
+//		  uiPredMode
+//		  );
   #endif
 
   #if RF_INTRA_EN
@@ -1377,7 +1377,7 @@ MbEncoder::xEstimateMbIntra4( IntMbTempData*&  rpcMbTempData,
     }
   }
   #if DEBUGGER_EN
-  Debugger::print("\n");
+  //Debugger::print("\n");
   #endif
 
 
@@ -1912,7 +1912,7 @@ MbEncoder::xEncode4x4IntraBlock( IntMbTempData& rcMbTempData,
   }
 
   #if DEBUGGER_EN
-  Debugger::print("%d ", uiBestMode);
+  //Debugger::print("%d ", uiBestMode);
   #endif
 
   #if RF_INTRA_EN

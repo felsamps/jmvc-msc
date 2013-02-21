@@ -11,6 +11,7 @@
 #include "TestDefinitions.h"
 #include "../H264AVCCommonLib/Debugger.h"
 #include "SearchMonitor.h"
+#include "RFIntraCompressor.h"
 
 H264AVC_NAMESPACE_BEGIN
 
@@ -163,6 +164,14 @@ MotionEstimation::estimateBlockWithStart( const MbDataAccess&  rcMbDataAccess,
 
   pcRefPelData[0] = const_cast<IntFrame&>(rcRefFrame).getFullPelYuvBuffer();
   pcRefPelData[1] = const_cast<IntFrame&>(rcRefFrame).getHalfPelYuvBuffer();
+  
+  /* Reference Frame Compression */
+#if RF_COMPRESSION_EN
+  if(!pcBSP) {
+      RFIntraCompressor* rfCompressor = new RFIntraCompressor(pcRefPelData[0]);
+      rfCompressor->debug();
+  }
+#endif
 
   m_pcXDistortion->set4x4Block( cIdx );
   pcRefPelData[0]->set4x4Block( cIdx );
@@ -294,8 +303,8 @@ MotionEstimation::estimateBlockWithStart( const MbDataAccess&  rcMbDataAccess,
   MemAccessHandler::init();
   #endif
 
-#if DEBUGGER_EN
-  /*if(!pcBSP) {
+#if TZ_TRACE_EN
+  if(!pcBSP) {
 	  Debugger::print("b %d %d %d %d %d %d\n",
 			  rcMbDataAccess.getMbX(),
 			  rcMbDataAccess.getMbY(),
@@ -303,7 +312,7 @@ MotionEstimation::estimateBlockWithStart( const MbDataAccess&  rcMbDataAccess,
 			  rcMbDataAccess.getSH().getPoc(),
 			  rcRefFrame.getViewId(),
 			  rcRefFrame.getPOC());
-  }*/
+  }
 #endif
 
   if( ! bQPelRefinementOnly )
@@ -937,7 +946,7 @@ Void MotionEstimation::xTZSearchHelp( IntTZSearchStrukt& rcStrukt, const Int iSe
 
 #if SW_USAGE_EN
   if(!MemAccessHandler::isFirstSearchTZ()) {
-#if DEBUGGER_EN
+#if TZ_TRACE_EN
 	Debugger::print("c %d %d\n", iSearchX, iSearchY);
 #endif
   }
@@ -1396,8 +1405,8 @@ Void MotionEstimation::xTZSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt& ru
     }
   }
 
-#if DEBUGGER_EN
-  //Debugger::print("f\n");
+#if TZ_TRACE_EN
+  Debugger::print("f\n");
 #endif
 
 #if SW_USAGE_EN
@@ -1435,8 +1444,8 @@ Void MotionEstimation::xTZSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt& ru
   // raster search if distance is to big
   if( bEnableRasterSearch && ( (cStrukt.uiBestDistance > iRaster) || bAlwaysRasterSearch ) )
   {
-#if DEBUGGER_EN
-  //Debugger::print("r %d %d %d %d\n", -cSearchRect.iNegVerLimit, cSearchRect.iPosVerLimit, -cSearchRect.iNegHorLimit, cSearchRect.iPosHorLimit);
+#if TZ_TRACE_EN
+  Debugger::print("r %d %d %d %d\n", -cSearchRect.iNegVerLimit, cSearchRect.iPosVerLimit, -cSearchRect.iNegHorLimit, cSearchRect.iPosHorLimit);
 #endif
     cStrukt.uiBestDistance = iRaster;
     for( iStartY = -cSearchRect.iNegVerLimit; iStartY <= cSearchRect.iPosVerLimit; iStartY += iRaster )
@@ -1520,8 +1529,8 @@ Void MotionEstimation::xTZSearch( IntYuvPicBuffer *pcPelData, Mv& rcMv, UInt& ru
     }
   }
 
-#if DEBUGGER_EN
-  //Debugger::print("e\n");
+#if TZ_TRACE_EN
+  Debugger::print("e\n");
 #endif
 
 
