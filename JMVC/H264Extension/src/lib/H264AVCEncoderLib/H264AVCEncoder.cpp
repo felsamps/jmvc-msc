@@ -13,6 +13,7 @@
 #include "TestDefinitions.h"
 #include "SearchMonitor.h"
 #include "RFIntraEncoder.h"
+#include "RFIntraCompressor.h"
 
 #include <math.h>
 
@@ -112,7 +113,8 @@ H264AVCEncoder::init(
 #endif
 
 #if RF_INTRA_EN
-  RFIntraEncoder::init("intra_trace.mat", pcCodingParameter->getCurentViewId(), pcCodingParameter->getFrameWidth(), pcCodingParameter->getFrameHeight());
+  RFIntraCompressor::init(8, pcCodingParameter->getTotalFrames(), pcCodingParameter->getFrameWidth(), pcCodingParameter->getFrameHeight());
+  RFIntraEncoder::init("intra_trace.mat", pcCodingParameter->getCurentViewId(), pcCodingParameter->getTotalFrames(), pcCodingParameter->getFrameWidth(), pcCodingParameter->getFrameHeight());
 #endif
 
   return Err::m_nOK;

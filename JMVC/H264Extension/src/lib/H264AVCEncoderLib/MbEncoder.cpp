@@ -1916,7 +1916,7 @@ MbEncoder::xEncode4x4IntraBlock( IntMbTempData& rcMbTempData,
   #endif
 
   #if RF_INTRA_EN
-  RFIntraEncoder::insertI4Mode(uiBestMode, fBestRd, rcMbTempData.getMbDataAccess().getMbX(), rcMbTempData.getMbDataAccess().getMbY(), cIdx);
+  RFIntraEncoder::insertI4Mode(uiBestMode, fBestRd, rcMbTempData.getMbDataAccess().getSH().getPoc(), rcMbTempData.getMbDataAccess().getMbX(), rcMbTempData.getMbDataAccess().getMbY(), cIdx);
   #endif
 
   RNOK( m_pcIntraPrediction->predictSLumaBlock( rcMbTempData, uiBestMode, cIdx, bValid ) );

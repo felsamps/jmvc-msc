@@ -136,6 +136,8 @@ protected:
     Void xCopyFillPlaneMargin( XPel *pucSrc, XPel *pucDest, Int iHeight, Int iWidth, Int iStride, Int iXMargin, Int iYMargin );//th
     Void xCopyPlane( XPel *pucSrc, XPel *pucDest, Int iHeight, Int iWidth, Int iStride );
   Void xFillPlaneMargin     ( XPel *pucDest, Int iHeight, Int iWidth, Int iStride, Int iXMargin, Int iYMargin );
+  
+  
 
 protected:
   const YuvBufferCtrl::YuvBufferParameter&  m_rcBufferParam;

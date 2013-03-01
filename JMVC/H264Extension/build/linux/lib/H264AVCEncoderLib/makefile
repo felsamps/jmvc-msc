@@ -63,6 +63,7 @@ OBJS          	= \
 			$(OBJ_DIR)/SearchMonitor.o \
 			$(OBJ_DIR)/RFIntraEncoder.o \
 			$(OBJ_DIR)/RFIntraCompressor.o \
+			$(OBJ_DIR)/NonLinearQuantizer.o \
 
 LIBS				= -lpthread
 

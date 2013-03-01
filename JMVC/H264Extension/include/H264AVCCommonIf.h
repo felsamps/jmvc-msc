@@ -36,6 +36,7 @@ public:
   static const ErrVal m_nDataNotAvailable;
 };
 
+#include <cstdio> 
 #include <assert.h>
 #include <iostream>
 #include <vector>
@@ -46,6 +47,8 @@ public:
 
 #include <list>         // Move the two lines prior to min() and max() to avoid certain Linux compiling issue. -Dong
 #include <algorithm>
+
+#include <fstream>
 
 #define min(x,y) ((x)<(y)?(x):(y))
 #define max(x,y) ((x)>(y)?(x):(y))

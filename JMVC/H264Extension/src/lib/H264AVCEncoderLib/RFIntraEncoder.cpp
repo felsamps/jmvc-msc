@@ -11,12 +11,13 @@ Int RFIntraEncoder::i16Mode;
 UInt RFIntraEncoder::i4Cost, RFIntraEncoder::i16Cost;
 bool RFIntraEncoder::intraBlockSize; /* false: 16x16, true: 4x4 */
 UInt** RFIntraEncoder::i4Costs;
+Int*** RFIntraEncoder::i4ModeMatrix;
 
 
 RFIntraEncoder::RFIntraEncoder() {
 }
 
-void RFIntraEncoder::init(std::string name, UInt view, UInt width, UInt heigth) {
+void RFIntraEncoder::init(std::string name, UInt view, UInt numFrames, UInt width, UInt heigth) {
 	if(view == 0) {
 		traceFile = fopen(name.c_str(), "w");
 		costFile = fopen("cost_file.mat", "w");
@@ -31,7 +32,14 @@ void RFIntraEncoder::init(std::string name, UInt view, UInt width, UInt heigth) 
 	for (int i = 0; i < (width/4); i++) {
 		i4Costs[i] = new UInt[heigth/4];
 	}
-
+        
+        i4ModeMatrix = new Int**[numFrames];
+        for (int i = 0; i < numFrames; i++) {
+            i4ModeMatrix[i] = new Int*[width/4];
+            for (int j = 0; j < width/4; j++) {
+                i4ModeMatrix[i][j] = new Int[heigth/4];                        
+            }
+        }
 	
 }
 
@@ -41,15 +49,20 @@ void RFIntraEncoder::initMb() {
 	i16Cost = 0x7FFFFFFF;
 }
 
-void RFIntraEncoder::insertI4Mode(Int predMode, UInt cost, UInt mbX, UInt mbY, h264::LumaIdx idx) {
+void RFIntraEncoder::insertI4Mode(Int predMode, UInt cost, Int framePoc, UInt mbX, UInt mbY, h264::LumaIdx idx) {
 	
 	i4Modes.push_back(predMode);
 	i4Cost += cost;
 	Int x = (idx.b4x4()%4);
 	Int y = (idx.b4x4()/4);
 	i4Costs[mbX*4 + x][mbY*4 + y] = cost;
+        i4ModeMatrix[framePoc][mbX*4 + x][mbY*4 + y] = predMode;
 	fprintf(costFile, "%d\n", cost);
 	
+}
+
+Int RFIntraEncoder::getI4Mode(UInt framePoc, UInt x, UInt y) {
+    return i4ModeMatrix[framePoc][x][y];
 }
 
 void RFIntraEncoder::insertI16Mode(Int predMode, UInt cost) {

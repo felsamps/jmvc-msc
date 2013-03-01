@@ -14,6 +14,7 @@ private:
     static FILE* traceFile, *costFile;
     static std::vector<Int> i4Modes;
     static UInt** i4Costs;
+    static Int*** i4ModeMatrix;
     static Int i16Mode;
     static UInt i4Cost, i16Cost;
     static bool intraBlockSize; /* false: 16x16, true: 4x4 */
@@ -21,10 +22,12 @@ private:
 public:
     RFIntraEncoder();
 
-    static void init(std::string name, UInt view, UInt w, UInt h);
+    static void init(std::string name, UInt view, UInt numFrames, UInt w, UInt h);
     static void initMb();
     static void insertI16Mode(Int predMode, UInt cost);
-    static void insertI4Mode(Int predMode, UInt cost, UInt mbX, UInt mbY, h264::LumaIdx idx);
+    static void insertI4Mode(Int predMode, UInt cost, Int framePoc, UInt mbX, UInt mbY, h264::LumaIdx idx);
+    
+    static Int getI4Mode(UInt framePoc, UInt x, UInt y);
 
     static bool isI4Mode();
 

@@ -7,10 +7,10 @@
 #pragma once
 #endif // _MSC_VER > 1000 
 
-
 #include "H264AVCVideoIoLib.h"
 #include "LargeFile.h"
 #include "ReadBitstreamIf.h"
+
 
 
 #if defined( WIN32 )

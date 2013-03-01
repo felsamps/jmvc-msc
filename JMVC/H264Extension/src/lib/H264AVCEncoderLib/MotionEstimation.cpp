@@ -161,17 +161,10 @@ MotionEstimation::estimateBlockWithStart( const MbDataAccess&  rcMbDataAccess,
   IntYuvMbBuffer*  pcWeightedYuvBuffer  = NULL;
   IntYuvPicBuffer* pcRefPelData[2];
   IntYuvMbBuffer   cWeightedYuvBuffer;
-
+  
   pcRefPelData[0] = const_cast<IntFrame&>(rcRefFrame).getFullPelYuvBuffer();
   pcRefPelData[1] = const_cast<IntFrame&>(rcRefFrame).getHalfPelYuvBuffer();
   
-  /* Reference Frame Compression */
-#if RF_COMPRESSION_EN
-  if(!pcBSP) {
-      RFIntraCompressor* rfCompressor = new RFIntraCompressor(pcRefPelData[0]);
-      rfCompressor->debug();
-  }
-#endif
 
   m_pcXDistortion->set4x4Block( cIdx );
   pcRefPelData[0]->set4x4Block( cIdx );
@@ -279,6 +272,11 @@ MotionEstimation::estimateBlockWithStart( const MbDataAccess&  rcMbDataAccess,
       fWeight = afCW[0] = afCW[1] = 1.0;
     }
   }
+/* Reference Frame Compression */
+#if RF_COMPRESSION_EN
+  RFIntraCompressor::compressRefFrame(pcRefPelData[0], rcRefFrame.getViewId(), rcRefFrame.getPOC());
+#endif
+
 
   //===== FULL-PEL ESTIMATION ======
   if( bOriginalSearchModeIsYUVSAD && ( pcBSP /* bi-prediction */ || fWeight != afCW[0] || fWeight != afCW[1] /* different component weights */ ) )
@@ -381,6 +379,10 @@ MotionEstimation::estimateBlockWithStart( const MbDataAccess&  rcMbDataAccess,
     }
   }
   
+#if RF_COMPRESSION_EN
+  RFIntraCompressor::recoverRefFrame(pcRefPelData[0], rcRefFrame.getViewId(), rcRefFrame.getPOC());
+#endif 
+  
   //FELIPE
 #if SW_USAGE_EN
   MemAccessHandler::insertUsage();
@@ -395,12 +397,16 @@ MotionEstimation::estimateBlockWithStart( const MbDataAccess&  rcMbDataAccess,
 
 
   //===== SUB-PEL ESTIMATION =====
+
   xGetMotionCost( 1 != ( 1 & m_cParams.getSubPelDFunc() ), 0 );
   m_pcXDistortion->getDistStruct( uiMode, m_cParams.getSubPelDFunc(), false, m_cXDSS );
   m_cXDSS.pYOrg = pcWeightedYuvBuffer->getLumBlk();
   xSetCostScale( 0 );
 
+#if RF_COMPRESSION_EN
+#else
   xSubPelSearch( pcRefPelData[1], cMv, uiMinSAD, uiBlk, uiMode, bQPelRefinementOnly );
+#endif
 
   Short sHor      = cMv.getHor();
   Short sVer      = cMv.getVer();
@@ -409,6 +415,11 @@ MotionEstimation::estimateBlockWithStart( const MbDataAccess&  rcMbDataAccess,
   ruiCost         = (UInt)floor( fWeight * (Double)( uiMinSAD - xGetCost( uiMvBits ) ) ) + xGetCost( ruiBits );
   rcMv            = cMv;
 
+#if DEBUGGER_EN
+  //Debugger::print("(%d,%d) %d\n", temp.getHor(), temp.getVer(), uiMinSAD - xGetCost( uiMvBits ));
+#endif
+  
+  
 #if MONITOR_EN
 	//static void insert(UInt poc, UInt xMb, UInt yMb, h264::Mv& vec, UInt frameId, UInt viewId, UInt cost, UInt bits);
 	SearchMonitor::insert(
@@ -423,9 +434,10 @@ MotionEstimation::estimateBlockWithStart( const MbDataAccess&  rcMbDataAccess,
 	);
 #endif
 
-	
+//TODO recover the originals...
 
-  return Err::m_nOK;
+
+   return Err::m_nOK;
 }
 
 
@@ -937,7 +949,10 @@ Void MotionEstimation::xTZSearchHelp( IntTZSearchStrukt& rcStrukt, const Int iSe
   m_cXDSS.pVSearch = rcStrukt.pucVRef + (iSearchY>>1) * rcStrukt.iCStride + (iSearchX>>1);
   
   UInt uiSad       = m_cXDSS.Func( &m_cXDSS );
+    
   uiSad           += MotionEstimationCost::xGetCost( iSearchX, iSearchY );
+  
+
   
   //FELIPE
 #if SW_USAGE_EN

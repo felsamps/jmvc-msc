@@ -196,7 +196,7 @@ SliceEncoder::encodeSlice( SliceHeader&  rcSliceHeader,
 	#endif
 
 	#if DEBUGGER_EN
-		Debugger::print("CURRENT FRAME (%d %d)\n", pcFrame->getViewId(), pcFrame->getPOC() );
+		//Debugger::print("CURRENT FRAME (%d %d)\n", pcFrame->getViewId(), pcFrame->getPOC() );
 	#endif
 
 		
@@ -225,7 +225,7 @@ SliceEncoder::encodeSlice( SliceHeader&  rcSliceHeader,
 
     
 #if DEBUGGER_EN        
-    Debugger::print("MB %d %d\n", pcMbDataAccess->getMbX(), pcMbDataAccess->getMbY());
+    //Debugger::print("MB %d %d\n", pcMbDataAccess->getMbX(), pcMbDataAccess->getMbY());
 #endif
         
     Double cost;
