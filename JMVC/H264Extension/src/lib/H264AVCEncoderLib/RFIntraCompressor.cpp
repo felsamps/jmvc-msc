@@ -115,19 +115,21 @@ void RFIntraCompressor::xCompressBlock(Int viewId, Int framePoc, Int blkX, Int b
     }
     
     /* Symplified Intra Prediction*/
-    Int predMode = RFIntraEncoder::getI4Mode(framePoc, blkX/4, blkY/4);
-    //XPel* n = xGetOrigNeighbors(viewId, framePoc, blkX, blkY);
-    XPel* n = xGetNeighbors(viewId, framePoc, blkX, blkY);
+    Int predMode = RFIntraEncoder::getI4Mode(viewId, framePoc, blkX/4, blkY/4);
     
-    /*
-    for (int i = 0; i < 13; i++) {
-        if(n[i] != nOrig[i]) {
-            printf("DIFF %d %d \n", n[i], nOrig[i]);
-        }
-    }
-    */
-
-        
+	XPel* n;
+#if OPEN_LOOP
+	n = xGetOrigNeighbors(viewId, framePoc, blkX, blkY);
+#endif
+	
+#if CLOSE_LOOP
+	n = xGetNeighbors(viewId, framePoc, blkX, blkY);
+#endif
+    
+#if HYBRID_LOOP
+	/* TODO implement it */
+#endif
+	
     switch(predMode) {
         case VER_SMODE:
                 xVerticalMode(n, pred);

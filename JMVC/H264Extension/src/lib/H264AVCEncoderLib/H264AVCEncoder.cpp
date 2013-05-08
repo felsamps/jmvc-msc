@@ -158,6 +158,11 @@ H264AVCEncoder::uninit()
 #if MONITOR_EN
 	SearchMonitor::reportAndClose();
 #endif
+	
+#if RF_INTRA_EN
+	RFIntraEncoder::reportI4Modes();
+	RFIntraEncoder::close();
+#endif
 
   return Err::m_nOK;
 }
