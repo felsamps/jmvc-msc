@@ -38,7 +38,10 @@ class RFIntraCompressor {
 private:
     static XPel*** pelRefFrames;
     static XPel*** pelCompressedFrames;
+    static XPel*** pelOrigFrames;
     static XPel*** pointers;
+    static XPel*** origPointers;
+    
     static Int width, height;
     
     static NonLinearQuantizer *q32, *q16, *q8;    
@@ -53,6 +56,7 @@ public:
     
     static void xCompressBlock(Int viewId, Int framePoc, Int x, Int y);
     static XPel* xGetNeighbors(Int viewId, Int framePoc, Int x, Int y);
+    static XPel* xGetOrigNeighbors(Int viewId, Int framePoc, Int x, Int y);
     static bool xIsUpperAvailable(Int x, Int y);
     static bool xIsLeftAvailable(Int x, Int y);
     static bool xIsRigthUpperAvailable(Int x, Int y);

@@ -277,7 +277,6 @@ MotionEstimation::estimateBlockWithStart( const MbDataAccess&  rcMbDataAccess,
   RFIntraCompressor::compressRefFrame(pcRefPelData[0], rcRefFrame.getViewId(), rcRefFrame.getPOC());
 #endif
 
-
   //===== FULL-PEL ESTIMATION ======
   if( bOriginalSearchModeIsYUVSAD && ( pcBSP /* bi-prediction */ || fWeight != afCW[0] || fWeight != afCW[1] /* different component weights */ ) )
   {
@@ -403,10 +402,7 @@ MotionEstimation::estimateBlockWithStart( const MbDataAccess&  rcMbDataAccess,
   m_cXDSS.pYOrg = pcWeightedYuvBuffer->getLumBlk();
   xSetCostScale( 0 );
 
-#if RF_COMPRESSION_EN
-#else
-  xSubPelSearch( pcRefPelData[1], cMv, uiMinSAD, uiBlk, uiMode, bQPelRefinementOnly );
-#endif
+  //xSubPelSearch( pcRefPelData[1], cMv, uiMinSAD, uiBlk, uiMode, bQPelRefinementOnly );
 
   Short sHor      = cMv.getHor();
   Short sVer      = cMv.getVer();

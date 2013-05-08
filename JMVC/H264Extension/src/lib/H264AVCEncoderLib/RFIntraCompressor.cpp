@@ -4,7 +4,9 @@
 
 XPel*** RFIntraCompressor::pelRefFrames;
 XPel*** RFIntraCompressor::pelCompressedFrames;
+XPel*** RFIntraCompressor::pelOrigFrames;
 XPel*** RFIntraCompressor::pointers;
+XPel*** RFIntraCompressor::origPointers;
 Int RFIntraCompressor::width;
 Int RFIntraCompressor::height;
 NonLinearQuantizer *RFIntraCompressor::q32, *RFIntraCompressor::q16, *RFIntraCompressor::q8; 
@@ -13,15 +15,21 @@ void RFIntraCompressor::init (Int numViews, Int numFrames, Int width, Int height
     
     pelRefFrames = new XPel**[numViews];
     pelCompressedFrames = new XPel**[numViews];
+    pelOrigFrames = new XPel**[numViews];
     pointers = new XPel**[numViews];
+    origPointers = new XPel**[numViews];
     for (int v = 0; v < numViews; v++) {
         pelRefFrames[v] = new XPel*[numFrames];
         pelCompressedFrames[v] = new XPel*[numFrames];
+        pelOrigFrames[v] = new XPel*[numFrames];
         pointers[v] = new XPel*[numFrames];
+        origPointers[v] = new XPel*[numFrames];
         for (int f = 0; f < numFrames; f++) {
             pelRefFrames[v][f] = NULL;
             pelCompressedFrames[v][f] = NULL;
+            pelOrigFrames[v][f] = NULL;
             pointers[v][f] = NULL;
+            origPointers[v][f] = NULL;
         }
     }
     
@@ -37,6 +45,7 @@ void RFIntraCompressor::init (Int numViews, Int numFrames, Int width, Int height
 void RFIntraCompressor::initRefFrame(Int viewId, Int framePoc) {
     pelRefFrames[viewId][framePoc] = new XPel[width*height];
     pelCompressedFrames[viewId][framePoc] = new XPel[width*height];
+    pelOrigFrames[viewId][framePoc] = new XPel[width*height];
 }
 
 void RFIntraCompressor::compressRefFrame(h264::IntYuvPicBuffer* refFrame, Int viewId, Int framePoc) {
@@ -45,15 +54,18 @@ void RFIntraCompressor::compressRefFrame(h264::IntYuvPicBuffer* refFrame, Int vi
     
     if(pointers[viewId][framePoc] == NULL) {    
         XPel* p = refFrame->getMbLumAddr();
+        XPel* pOrig = refFrame->getLumOrigin();
         
         initRefFrame(viewId, framePoc);
         
         pointers[viewId][framePoc] = p;
-        
+        origPointers[viewId][framePoc] = pOrig;
+                
         /* Save the original reconstructed samples */
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                pelRefFrames[viewId][framePoc][x+y*width] = pointers[viewId][framePoc][x + y*yStride];                
+                pelRefFrames[viewId][framePoc][x+y*width] = pointers[viewId][framePoc][x + y*yStride];             
+                pelOrigFrames[viewId][framePoc][x+y*width] = origPointers[viewId][framePoc][x + y*yStride];             
             }
         }
         
@@ -104,7 +116,17 @@ void RFIntraCompressor::xCompressBlock(Int viewId, Int framePoc, Int blkX, Int b
     
     /* Symplified Intra Prediction*/
     Int predMode = RFIntraEncoder::getI4Mode(framePoc, blkX/4, blkY/4);
+    //XPel* n = xGetOrigNeighbors(viewId, framePoc, blkX, blkY);
     XPel* n = xGetNeighbors(viewId, framePoc, blkX, blkY);
+    
+    /*
+    for (int i = 0; i < 13; i++) {
+        if(n[i] != nOrig[i]) {
+            printf("DIFF %d %d \n", n[i], nOrig[i]);
+        }
+    }
+    */
+
         
     switch(predMode) {
         case VER_SMODE:
@@ -163,7 +185,7 @@ void RFIntraCompressor::xCompressBlock(Int viewId, Int framePoc, Int blkX, Int b
     for (int y = 0; y < 4; y++) {
         for (int x = 0; x < 4; x++) {
             Int idX = blkX+x, idY = blkY+y;
-            Int MSE_TH = -1;
+            Int MSE_TH = 4;
             pelCompressedFrames[viewId][framePoc][idX + (idY)*width] = (mse8 < MSE_TH) ? recon8[x][y] : 
                     (mse16 < MSE_TH) ? recon16[x][y] :
                     (mse32 < MSE_TH) ? recon32[x][y] :
@@ -184,9 +206,31 @@ bool RFIntraCompressor::xIsRigthUpperAvailable(Int x, Int y) {
     return (x+4 < width);
 }
 
+XPel* RFIntraCompressor::xGetOrigNeighbors(Int viewId, Int framePoc, Int x, Int y) {
+    XPel* r = new XPel[13];
+    XPel* frame = pelOrigFrames[viewId][framePoc];
+    
+    
+    r[A] = (x!=0 && y!=0) ? frame[(x-1) + (y-1)*width] : -1;
+
+    /* left samples */
+    for (int j = 0; j < 4; j++) {
+            r[3-j] = (x != 0) ? frame[(x-1) + (j+y)*width] : -1;
+    }
+    
+    /* upper samples */
+    for (int i = 0; i < 8; i++) {
+            r[5+i] = (y == 0) ? -1 :
+                     ((x+i) >= width) ? -1 :
+                     frame[(i+x) + (y-1)*width];
+    }
+    
+    return r;
+}
+
 XPel* RFIntraCompressor::xGetNeighbors(Int viewId, Int framePoc, Int x, Int y) {
     XPel* r = new XPel[13];
-    XPel* frame = pelRefFrames[viewId][framePoc];
+    XPel* frame = pelCompressedFrames[viewId][framePoc];
     
     r[A] = (x!=0 && y!=0) ? frame[(x-1) + (y-1)*width] : -1;
 
