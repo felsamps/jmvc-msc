@@ -64,6 +64,7 @@ OBJS          	= \
 			$(OBJ_DIR)/RFIntraEncoder.o \
 			$(OBJ_DIR)/RFIntraCompressor.o \
 			$(OBJ_DIR)/NonLinearQuantizer.o \
+			$(OBJ_DIR)/TimeMeter.o \
 
 LIBS				= -lpthread
 

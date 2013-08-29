@@ -14,6 +14,7 @@
 #include "SearchMonitor.h"
 #include "RFIntraEncoder.h"
 #include "RFIntraCompressor.h"
+#include "TimeMeter.h"
 
 #include <math.h>
 
@@ -116,6 +117,10 @@ H264AVCEncoder::init(
   RFIntraCompressor::init(8, pcCodingParameter->getTotalFrames(), pcCodingParameter->getFrameWidth(), pcCodingParameter->getFrameHeight());
   RFIntraEncoder::init("intra_trace.mat", pcCodingParameter->getCurentViewId(), pcCodingParameter->getTotalFrames(), pcCodingParameter->getFrameWidth(), pcCodingParameter->getFrameHeight());
 #endif
+  
+#if TIME_METER_EN
+  TimeMeter::init(pcCodingParameter->getCurentViewId());
+#endif
 
   return Err::m_nOK;
 }
@@ -162,6 +167,10 @@ H264AVCEncoder::uninit()
 #if RF_INTRA_EN
 	RFIntraEncoder::reportI4Modes();
 	RFIntraEncoder::close();
+#endif
+
+#if TIME_METER_EN
+	TimeMeter::close();
 #endif
 
   return Err::m_nOK;

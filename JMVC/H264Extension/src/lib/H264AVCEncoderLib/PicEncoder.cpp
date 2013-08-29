@@ -11,6 +11,8 @@
 #include "RecPicBuffer.h"
 #include "NalUnitEncoder.h"
 #include "SliceEncoder.h"
+#include "TestDefinitions.h"
+#include "TimeMeter.h"
 
 
 H264AVC_NAMESPACE_BEGIN
@@ -338,7 +340,7 @@ PicEncoder::xInitFrameSpecSpecial() // for 12 and 15 only
      xGetListSizesSpecial( m_acFrameSpecification[uiFrame].getTemporalLayer(), uiFrame, auiPredListSize);
 
      // PATCH BEGIN -Samsung
-     // To allow usage of “IntraPeriod?parameter in case of “GOPSize?equal 12 or 15.
+     // To allow usage of ï¿½IntraPeriod?parameter in case of ï¿½GOPSize?equal 12 or 15.
      if((uiFrame == m_uiGOPSize) && ((m_pcCodingParameter->getIntraPeriod() != m_uiGOPSize)))
          auiPredListSize[0] = 1;
      //  PATCH END
@@ -716,8 +718,12 @@ PicEncoder::process( PicBuffer*               pcInputPicBuffer,
 		UInt    uiFirstPicPoc = 0;
 
         //----- encoding -----
+		
         for( UInt uiPicType = 0; uiPicType < uiNumPics; uiPicType++ )
         {
+#if TIME_METER_EN
+			TimeMeter::startMeasure();
+#endif
             PicType ePicType    = ( uiPicType ? eLastPicType : eFirstPicType );
 
             //----- initialize picture -----
@@ -746,7 +752,9 @@ PicEncoder::process( PicBuffer*               pcInputPicBuffer,
             //~JVT-W080    
 
 			//----- encoding -----
+
             RNOK( xEncodePicture( rcExtBinDataAccessorList, *pcRecPicBufUnit, *pcSliceHeader, dLambda, uiPictureBits ) );
+
             m_uiWrittenBytes += ( uiPictureBits >> 3 );
 
             //SEI {
@@ -763,6 +771,10 @@ PicEncoder::process( PicBuffer*               pcInputPicBuffer,
             //----- reset -----
             delete pcSliceHeader;
 			pcSliceHeader=0;
+			
+#if TIME_METER_EN
+			TimeMeter::finishMeasure();
+#endif
 		}//end of paff test
 
 		 m_MultiviewRefPicManager.RemoveMultiviewReferencesPicturesFromBuffer(m_pcRecPicBuffer);
@@ -773,6 +785,7 @@ PicEncoder::process( PicBuffer*               pcInputPicBuffer,
 		//----- reset -----
         delete pcInputAccessUnit;
         xGetNextFrameSpec(); //new configuration file
+		
 
     }
 
