@@ -16,6 +16,7 @@ private:
     static FILE* fp_de;
     static FILE* fpMeSearchMap;
     static FILE* fpDeSearchMap;
+    static FILE* fpPerPrediction;
     static std::set<std::pair<int,int> > acc;
     static std::set<int> block_acc;
     static int counter;
@@ -32,12 +33,17 @@ private:
 
     static std::map<std::pair<UInt,UInt>, long long**> swMap;
     static std::list<std::pair<UInt, UInt> > refs;
+	
+	static std::map<std::pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >, long long> accPerPrediction;
+	static std::set<std::pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> > > refsPrediction;
+	static std::map<std::pair<UInt, UInt>, char> translateFrameToChar;
     
 public:
     
     MemAccessHandler();
     virtual ~MemAccessHandler();
     
+	static void initRefsPrediction();
     static void openFile(unsigned int view, unsigned int searchRange);
     static void closeAndReport();
     static void init();
@@ -53,10 +59,13 @@ public:
     static void insert(std::pair<int, int>);
     static void insertBlock(int x, int y, int size);
 
+	static void handleAccPerPrediction();
+	
     static void insertUsage();
     static void report();
     static void reportSearchMap();
     static void reportSearchOccurrences();
+	static void reportPerPrediction();
     
     static void setHeight(int h);
     static void setWidth(int w);

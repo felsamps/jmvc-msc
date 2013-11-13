@@ -11,6 +11,7 @@ FILE* MemAccessHandler::fp_me;
 FILE* MemAccessHandler::fp_de;
 FILE* MemAccessHandler::fpMeSearchMap;
 FILE* MemAccessHandler::fpDeSearchMap;
+FILE* MemAccessHandler::fpPerPrediction;
 std::set<std::pair<int,int> > MemAccessHandler::acc;
 std::set<int> MemAccessHandler::block_acc;
 int MemAccessHandler::counter;
@@ -34,6 +35,9 @@ std::pair<int,int> MemAccessHandler::mvPredictor;
 std::map<std::pair<UInt,UInt>, long long**> MemAccessHandler::swMap;
 std::list<std::pair<UInt, UInt> > MemAccessHandler::refs;
 bool MemAccessHandler::firstSearchTZ;
+std::map<std::pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >, long long> MemAccessHandler::accPerPrediction;
+std::set<std::pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> > > MemAccessHandler::refsPrediction;
+std::map<std::pair<UInt, UInt>, char> MemAccessHandler::translateFrameToChar;
 
 MemAccessHandler::MemAccessHandler() {
 }
@@ -45,6 +49,7 @@ void MemAccessHandler::openFile(unsigned int view, unsigned int range) {
     if(view == 0) {
         fp_me = fopen("sw_usage_me.mat", "w");
         fp_de = fopen("sw_usage_de.mat", "w");
+		fpPerPrediction = fopen("acc_per_prediction", "w");
 #if SW_SEARCH_MAP
         fpMeSearchMap = fopen("search_map_me.mat", "w");
 		fpDeSearchMap = fopen("search_map_de.mat", "w");
@@ -53,6 +58,7 @@ void MemAccessHandler::openFile(unsigned int view, unsigned int range) {
     else {
         fp_me = fopen("sw_usage_me.mat", "a");
 		fp_de = fopen("sw_usage_de.mat", "a");
+		fpPerPrediction = fopen("acc_per_prediction", "a");
 #if SW_SEARCH_MAP
         fpMeSearchMap = fopen("search_map_me.mat", "a");
 		fpDeSearchMap = fopen("search_map_de.mat", "a");
@@ -63,8 +69,10 @@ void MemAccessHandler::openFile(unsigned int view, unsigned int range) {
 	swMap.clear();
 	refs.clear();
 	
+	initRefsPrediction();
 
 }
+
 
 void MemAccessHandler::reportSearchOccurrences() {
 	
@@ -90,6 +98,7 @@ void MemAccessHandler::reportSearchOccurrences() {
 void MemAccessHandler::closeAndReport() {
     fclose(fp_me);
     fclose(fp_de);
+	fclose(fpPerPrediction);
 #if SW_SEARCH_MAP
 	fclose(fpMeSearchMap);
 	fclose(fpDeSearchMap);
@@ -167,8 +176,23 @@ void MemAccessHandler::reportSearchMap() {
     }
 }
 
+void MemAccessHandler::handleAccPerPrediction() {
+	std::pair<UInt,UInt> curr(currView, currPoc);
+	std::pair<UInt,UInt> ref(refView, refPoc);
+	std::pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> > p(curr,ref);
+	
+	if(accPerPrediction.find(p) != accPerPrediction.end()) {
+		accPerPrediction[p] += acc.size();
+	}
+	else {
+		accPerPrediction[p] = acc.size();
+	}
+}
+
 void MemAccessHandler::insertUsage() {
     if( !bipred ) {
+		
+		handleAccPerPrediction();
 
 #if SW_SEARCH_MAP
         reportSearchMap();
@@ -201,6 +225,21 @@ void MemAccessHandler::insertUsage() {
             }
         }
     }
+}
+
+void MemAccessHandler::reportPerPrediction() {
+	for (std::map<std::pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >, long long>::iterator it = accPerPrediction.begin(); it != accPerPrediction.end(); it++) {
+		std::pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> > p = (*it).first;
+		std::pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> > pTest(p);
+		pTest.first.second = ((pTest.first.second-1) % 8 ) + 1;
+		pTest.second.second = ((pTest.second.second-1) % 8 ) + 1;
+		long long l = (*it).second;
+		if(refsPrediction.find(pTest) != refsPrediction.end()) {
+			std::cout << p.first.first << " " << p.first.second << " " << p.second.first << " " << p.second.second << " " << l << std::endl;
+			fprintf(fpPerPrediction, "%c %c %d\n", translateFrameToChar[pTest.first], translateFrameToChar[pTest.second], l);
+		}		
+	}
+
 }
 
 void MemAccessHandler::report() {
@@ -311,4 +350,147 @@ void MemAccessHandler::setFirstSearchTZ(bool b) {
 
 bool MemAccessHandler::isFirstSearchTZ() {
 	return firstSearchTZ;
+
+}
+
+void MemAccessHandler::initRefsPrediction() {
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(0,4), std::make_pair<UInt,UInt>(0,0)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(0,4), std::make_pair<UInt,UInt>(0,8)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(0,2), std::make_pair<UInt,UInt>(0,4)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(0,2), std::make_pair<UInt,UInt>(0,0)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(0,1), std::make_pair<UInt,UInt>(0,0)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(0,1), std::make_pair<UInt,UInt>(0,2)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(0,3), std::make_pair<UInt,UInt>(0,2)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(0,3), std::make_pair<UInt,UInt>(0,4)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(0,6), std::make_pair<UInt,UInt>(0,4)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(0,6), std::make_pair<UInt,UInt>(0,8)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(0,5), std::make_pair<UInt,UInt>(0,4)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(0,5), std::make_pair<UInt,UInt>(0,6)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(0,7), std::make_pair<UInt,UInt>(0,6)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(0,7), std::make_pair<UInt,UInt>(0,8)));
+	
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(2,4), std::make_pair<UInt,UInt>(2,0)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(2,4), std::make_pair<UInt,UInt>(2,8)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(2,2), std::make_pair<UInt,UInt>(2,4)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(2,2), std::make_pair<UInt,UInt>(2,0)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(2,1), std::make_pair<UInt,UInt>(2,0)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(2,1), std::make_pair<UInt,UInt>(2,2)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(2,3), std::make_pair<UInt,UInt>(2,2)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(2,3), std::make_pair<UInt,UInt>(2,4)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(2,6), std::make_pair<UInt,UInt>(2,4)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(2,6), std::make_pair<UInt,UInt>(2,8)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(2,5), std::make_pair<UInt,UInt>(2,4)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(2,5), std::make_pair<UInt,UInt>(2,6)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(2,7), std::make_pair<UInt,UInt>(2,6)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(2,7), std::make_pair<UInt,UInt>(2,8)));
+	
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,4), std::make_pair<UInt,UInt>(1,0)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,4), std::make_pair<UInt,UInt>(1,8)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,2), std::make_pair<UInt,UInt>(1,4)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,2), std::make_pair<UInt,UInt>(1,0)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,1), std::make_pair<UInt,UInt>(1,0)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,1), std::make_pair<UInt,UInt>(1,2)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,3), std::make_pair<UInt,UInt>(1,2)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,3), std::make_pair<UInt,UInt>(1,4)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,6), std::make_pair<UInt,UInt>(1,4)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,6), std::make_pair<UInt,UInt>(1,8)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,5), std::make_pair<UInt,UInt>(1,4)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,5), std::make_pair<UInt,UInt>(1,6)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,7), std::make_pair<UInt,UInt>(1,6)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,7), std::make_pair<UInt,UInt>(1,8)));
+	
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,4), std::make_pair<UInt,UInt>(3,0)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,4), std::make_pair<UInt,UInt>(3,8)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,2), std::make_pair<UInt,UInt>(3,4)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,2), std::make_pair<UInt,UInt>(3,0)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,1), std::make_pair<UInt,UInt>(3,0)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,1), std::make_pair<UInt,UInt>(3,2)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,3), std::make_pair<UInt,UInt>(3,2)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,3), std::make_pair<UInt,UInt>(3,4)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,6), std::make_pair<UInt,UInt>(3,4)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,6), std::make_pair<UInt,UInt>(3,8)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,5), std::make_pair<UInt,UInt>(3,4)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,5), std::make_pair<UInt,UInt>(3,6)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,7), std::make_pair<UInt,UInt>(3,6)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,7), std::make_pair<UInt,UInt>(3,8)));
+	
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(2,0), std::make_pair<UInt,UInt>(0,0)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(2,1), std::make_pair<UInt,UInt>(0,1)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(2,2), std::make_pair<UInt,UInt>(0,2)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(2,3), std::make_pair<UInt,UInt>(0,3)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(2,4), std::make_pair<UInt,UInt>(0,4)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(2,5), std::make_pair<UInt,UInt>(0,5)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(2,6), std::make_pair<UInt,UInt>(0,6)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(2,7), std::make_pair<UInt,UInt>(0,7)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(2,8), std::make_pair<UInt,UInt>(0,8)));
+	
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,0), std::make_pair<UInt,UInt>(2,0)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,1), std::make_pair<UInt,UInt>(2,1)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,2), std::make_pair<UInt,UInt>(2,2)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,3), std::make_pair<UInt,UInt>(2,3)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,4), std::make_pair<UInt,UInt>(2,4)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,5), std::make_pair<UInt,UInt>(2,5)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,6), std::make_pair<UInt,UInt>(2,6)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,7), std::make_pair<UInt,UInt>(2,7)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,8), std::make_pair<UInt,UInt>(2,8)));
+	
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,0), std::make_pair<UInt,UInt>(0,0)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,1), std::make_pair<UInt,UInt>(0,1)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,2), std::make_pair<UInt,UInt>(0,2)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,3), std::make_pair<UInt,UInt>(0,3)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,4), std::make_pair<UInt,UInt>(0,4)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,5), std::make_pair<UInt,UInt>(0,5)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,6), std::make_pair<UInt,UInt>(0,6)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,7), std::make_pair<UInt,UInt>(0,7)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,8), std::make_pair<UInt,UInt>(0,8)));
+	
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,0), std::make_pair<UInt,UInt>(2,0)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,1), std::make_pair<UInt,UInt>(2,1)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,2), std::make_pair<UInt,UInt>(2,2)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,3), std::make_pair<UInt,UInt>(2,3)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,4), std::make_pair<UInt,UInt>(2,4)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,5), std::make_pair<UInt,UInt>(2,5)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,6), std::make_pair<UInt,UInt>(2,6)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,7), std::make_pair<UInt,UInt>(2,7)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,8), std::make_pair<UInt,UInt>(2,8)));
+	
+	translateFrameToChar[std::make_pair<UInt,UInt>(0,0)] = 'I';
+	translateFrameToChar[std::make_pair<UInt,UInt>(0,1)] = 'C';
+	translateFrameToChar[std::make_pair<UInt,UInt>(0,2)] = 'A';
+	translateFrameToChar[std::make_pair<UInt,UInt>(0,3)] = 'D';
+	translateFrameToChar[std::make_pair<UInt,UInt>(0,4)] = '1';
+	translateFrameToChar[std::make_pair<UInt,UInt>(0,5)] = 'E';
+	translateFrameToChar[std::make_pair<UInt,UInt>(0,6)] = 'B';
+	translateFrameToChar[std::make_pair<UInt,UInt>(0,7)] = 'F';
+	translateFrameToChar[std::make_pair<UInt,UInt>(0,8)] = 'I';
+	
+	translateFrameToChar[std::make_pair<UInt,UInt>(1,0)] = '4';
+	translateFrameToChar[std::make_pair<UInt,UInt>(1,1)] = 'O';
+	translateFrameToChar[std::make_pair<UInt,UInt>(1,2)] = 'M';
+	translateFrameToChar[std::make_pair<UInt,UInt>(1,3)] = 'P';
+	translateFrameToChar[std::make_pair<UInt,UInt>(1,4)] = '5';
+	translateFrameToChar[std::make_pair<UInt,UInt>(1,5)] = 'Q';
+	translateFrameToChar[std::make_pair<UInt,UInt>(1,6)] = 'N';
+	translateFrameToChar[std::make_pair<UInt,UInt>(1,7)] = 'R';
+	translateFrameToChar[std::make_pair<UInt,UInt>(1,8)] = '4';
+	
+	translateFrameToChar[std::make_pair<UInt,UInt>(2,0)] = '2';
+	translateFrameToChar[std::make_pair<UInt,UInt>(2,1)] = 'I';
+	translateFrameToChar[std::make_pair<UInt,UInt>(2,2)] = 'G';
+	translateFrameToChar[std::make_pair<UInt,UInt>(2,3)] = 'J';
+	translateFrameToChar[std::make_pair<UInt,UInt>(2,4)] = '3';
+	translateFrameToChar[std::make_pair<UInt,UInt>(2,5)] = 'K';
+	translateFrameToChar[std::make_pair<UInt,UInt>(2,6)] = 'H';
+	translateFrameToChar[std::make_pair<UInt,UInt>(2,7)] = 'L';
+	translateFrameToChar[std::make_pair<UInt,UInt>(2,8)] = '2';
+	
+	translateFrameToChar[std::make_pair<UInt,UInt>(3,0)] = '6';
+	translateFrameToChar[std::make_pair<UInt,UInt>(3,1)] = 'U';
+	translateFrameToChar[std::make_pair<UInt,UInt>(3,2)] = 'S';
+	translateFrameToChar[std::make_pair<UInt,UInt>(3,3)] = 'V';
+	translateFrameToChar[std::make_pair<UInt,UInt>(3,4)] = '7';
+	translateFrameToChar[std::make_pair<UInt,UInt>(3,5)] = 'W';
+	translateFrameToChar[std::make_pair<UInt,UInt>(3,6)] = 'T';
+	translateFrameToChar[std::make_pair<UInt,UInt>(3,7)] = 'X';
+	translateFrameToChar[std::make_pair<UInt,UInt>(3,8)] = '6';
 }
