@@ -399,20 +399,20 @@ void MemAccessHandler::initRefsPrediction() {
 	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,7), std::make_pair<UInt,UInt>(1,6)));
 	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,7), std::make_pair<UInt,UInt>(1,8)));
 	
-	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,4), std::make_pair<UInt,UInt>(3,0)));
-	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,4), std::make_pair<UInt,UInt>(3,8)));
-	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,2), std::make_pair<UInt,UInt>(3,4)));
-	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,2), std::make_pair<UInt,UInt>(3,0)));
-	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,1), std::make_pair<UInt,UInt>(3,0)));
-	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,1), std::make_pair<UInt,UInt>(3,2)));
-	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,3), std::make_pair<UInt,UInt>(3,2)));
-	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,3), std::make_pair<UInt,UInt>(3,4)));
-	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,6), std::make_pair<UInt,UInt>(3,4)));
-	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,6), std::make_pair<UInt,UInt>(3,8)));
-	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,5), std::make_pair<UInt,UInt>(3,4)));
-	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,5), std::make_pair<UInt,UInt>(3,6)));
-	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,7), std::make_pair<UInt,UInt>(3,6)));
-	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,7), std::make_pair<UInt,UInt>(3,8)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(4,4), std::make_pair<UInt,UInt>(4,0)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(4,4), std::make_pair<UInt,UInt>(4,8)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(4,2), std::make_pair<UInt,UInt>(4,4)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(4,2), std::make_pair<UInt,UInt>(4,0)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(4,1), std::make_pair<UInt,UInt>(4,0)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(4,1), std::make_pair<UInt,UInt>(4,2)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(4,3), std::make_pair<UInt,UInt>(4,2)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(4,3), std::make_pair<UInt,UInt>(4,4)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(4,6), std::make_pair<UInt,UInt>(4,4)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(4,6), std::make_pair<UInt,UInt>(4,8)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(4,5), std::make_pair<UInt,UInt>(4,4)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(4,5), std::make_pair<UInt,UInt>(4,6)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(4,7), std::make_pair<UInt,UInt>(4,6)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(4,7), std::make_pair<UInt,UInt>(4,8)));
 	
 	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(2,0), std::make_pair<UInt,UInt>(0,0)));
 	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(2,1), std::make_pair<UInt,UInt>(0,1)));
@@ -444,15 +444,15 @@ void MemAccessHandler::initRefsPrediction() {
 	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,7), std::make_pair<UInt,UInt>(0,7)));
 	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(1,8), std::make_pair<UInt,UInt>(0,8)));
 	
-	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,0), std::make_pair<UInt,UInt>(2,0)));
-	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,1), std::make_pair<UInt,UInt>(2,1)));
-	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,2), std::make_pair<UInt,UInt>(2,2)));
-	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,3), std::make_pair<UInt,UInt>(2,3)));
-	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,4), std::make_pair<UInt,UInt>(2,4)));
-	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,5), std::make_pair<UInt,UInt>(2,5)));
-	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,6), std::make_pair<UInt,UInt>(2,6)));
-	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,7), std::make_pair<UInt,UInt>(2,7)));
-	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(3,8), std::make_pair<UInt,UInt>(2,8)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(4,0), std::make_pair<UInt,UInt>(2,0)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(4,1), std::make_pair<UInt,UInt>(2,1)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(4,2), std::make_pair<UInt,UInt>(2,2)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(4,3), std::make_pair<UInt,UInt>(2,3)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(4,4), std::make_pair<UInt,UInt>(2,4)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(4,5), std::make_pair<UInt,UInt>(2,5)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(4,6), std::make_pair<UInt,UInt>(2,6)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(4,7), std::make_pair<UInt,UInt>(2,7)));
+	refsPrediction.insert(std::make_pair<std::pair<UInt,UInt>,std::pair<UInt,UInt> >(std::make_pair<UInt,UInt>(4,8), std::make_pair<UInt,UInt>(2,8)));
 	
 	translateFrameToChar[std::make_pair<UInt,UInt>(0,0)] = 'I';
 	translateFrameToChar[std::make_pair<UInt,UInt>(0,1)] = 'C';
@@ -484,13 +484,13 @@ void MemAccessHandler::initRefsPrediction() {
 	translateFrameToChar[std::make_pair<UInt,UInt>(2,7)] = 'L';
 	translateFrameToChar[std::make_pair<UInt,UInt>(2,8)] = '2';
 	
-	translateFrameToChar[std::make_pair<UInt,UInt>(3,0)] = '6';
-	translateFrameToChar[std::make_pair<UInt,UInt>(3,1)] = 'U';
-	translateFrameToChar[std::make_pair<UInt,UInt>(3,2)] = 'S';
-	translateFrameToChar[std::make_pair<UInt,UInt>(3,3)] = 'V';
-	translateFrameToChar[std::make_pair<UInt,UInt>(3,4)] = '7';
-	translateFrameToChar[std::make_pair<UInt,UInt>(3,5)] = 'W';
-	translateFrameToChar[std::make_pair<UInt,UInt>(3,6)] = 'T';
-	translateFrameToChar[std::make_pair<UInt,UInt>(3,7)] = 'X';
-	translateFrameToChar[std::make_pair<UInt,UInt>(3,8)] = '6';
+	translateFrameToChar[std::make_pair<UInt,UInt>(4,0)] = '6';
+	translateFrameToChar[std::make_pair<UInt,UInt>(4,1)] = 'U';
+	translateFrameToChar[std::make_pair<UInt,UInt>(4,2)] = 'S';
+	translateFrameToChar[std::make_pair<UInt,UInt>(4,3)] = 'V';
+	translateFrameToChar[std::make_pair<UInt,UInt>(4,4)] = '7';
+	translateFrameToChar[std::make_pair<UInt,UInt>(4,5)] = 'W';
+	translateFrameToChar[std::make_pair<UInt,UInt>(4,6)] = 'T';
+	translateFrameToChar[std::make_pair<UInt,UInt>(4,7)] = 'X';
+	translateFrameToChar[std::make_pair<UInt,UInt>(4,8)] = '6';
 }
