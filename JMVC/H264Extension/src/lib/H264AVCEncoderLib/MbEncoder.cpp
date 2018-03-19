@@ -518,6 +518,7 @@ MbEncoder::encodeMacroblock( MbDataAccess&  rcMbDataAccess,
   RFIntraEncoder::report();
   #endif
 
+
   //===== fix estimation =====
   RNOK( m_pcRateDistortionIf->fixMacroblockQP( *m_pcIntMbBestData ) );
   xStoreEstimation( rcMbDataAccess, *m_pcIntMbBestData, NULL, NULL, false, NULL );

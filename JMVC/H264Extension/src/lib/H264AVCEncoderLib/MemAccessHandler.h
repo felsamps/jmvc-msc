@@ -62,6 +62,7 @@ public:
 	static void handleAccPerPrediction();
 	
     static void insertUsage();
+    static void reportTotalBW();
     static void report();
     static void reportSearchMap();
     static void reportSearchOccurrences();

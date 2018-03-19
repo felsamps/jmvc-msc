@@ -143,6 +143,7 @@ void MemAccessHandler::insertBlock(int x, int y, int size) {
         }    
     }
 #else
+    incBW(size*size);
     
     std::pair<int,int> bp0(posx/size         , posy/size        );
     std::pair<int,int> bp1(posx/size         ,(posy+size)/size-1);
@@ -259,7 +260,6 @@ void MemAccessHandler::reportPerPrediction() {
 }
 
 void MemAccessHandler::report() {
-    
     for(int x=0; x < width/16; x++) {
         for (int y = 0; y < height/16; y++) {
                        
@@ -292,7 +292,11 @@ void MemAccessHandler::report() {
             }
         }
     }
-    incBW(acc.size());
+    //incBW(acc.size());
+}
+
+void MemAccessHandler::reportTotalBW() {
+    printf("     ME memory bandwidth: %lld bytes\n", bw);
 }
 
 void MemAccessHandler::setHeight(int h) {

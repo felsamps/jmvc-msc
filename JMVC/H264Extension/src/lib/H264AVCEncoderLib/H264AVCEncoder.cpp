@@ -158,6 +158,7 @@ H264AVCEncoder::uninit()
 	ReferenceFrameComm::reportAndClose();
 #endif
 #if SW_USAGE_EN
+	MemAccessHandler::reportTotalBW();
 	MemAccessHandler::reportPerPrediction();
 	MemAccessHandler::closeAndReport();
 #endif
